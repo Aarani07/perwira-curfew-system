@@ -1,0 +1,200 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Student Penalty Monitoring
+{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/fine_payment.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="fine-page">
+
+    <!-- HERO SECTION -->
+    <div class="fine-hero">
+
+        <div class="hero-left">
+
+            <h1>Student Penalty Monitoring</h1>
+
+            <p>
+                Monitor student disciplinary fines, review payment statuses,
+                and verify outstanding penalty payments during curfew
+                enforcement operations.
+            </p>
+
+        </div>
+
+        <div class="hero-stats">
+
+            <!-- TOTAL FINES -->
+            <div class="stat-card pending">
+
+                <div class="stat-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+
+                <div>
+                    <h2>{{ fines | length }}</h2>
+                    <p>Total Fines</p>
+                </div>
+
+            </div>
+
+            <!-- PAID -->
+            <div class="stat-card paid">
+
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+
+                <div>
+                    <h2>
+                        {{ fines | selectattr("payment_status", "equalto", "Paid") | list | length }}
+                    </h2>
+                    <p>Successful Payments</p>
+                </div>
+
+            </div>
+
+            <!-- UNPAID -->
+            <div class="stat-card overdue">
+
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+
+                <div>
+                    <h2>
+                        {{ fines | selectattr("payment_status", "equalto", "Unpaid") | list | length }}
+                    </h2>
+                    <p>Pending Payments</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TABLE SECTION -->
+    <div class="fine-table-container">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>Student Fine Records</h2>
+
+                <p>
+                    Review disciplinary fine payment records and monitor
+                    student payment statuses.
+                </p>
+
+            </div>
+
+        </div>
+
+        {% if fines %}
+
+        <div class="table-responsive">
+
+            <table class="fine-table">
+
+                <thead>
+                    <tr>
+                        <th>Fine ID</th>
+                        <th>Student</th>
+                        <th>Matric No</th>
+                        <th>Block</th>
+                        <th>Amount</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Date Issued</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for fine in fines %}
+
+                    <tr>
+
+                        <td>#{{ fine.fine_id }}</td>
+
+                        <td class="student-name">
+                            {{ fine.student_name }}
+                        </td>
+
+                        <td>{{ fine.matric_no }}</td>
+
+                        <td>
+                            {{ fine.block }}-{{ fine.room_no }}
+                        </td>
+
+                        <td class="amount">
+                            RM {{ "%.2f"|format(fine.amount) }}
+                        </td>
+
+                        <td>{{ fine.reason }}</td>
+
+                        <td>
+
+                            {% if fine.payment_status == "Paid" %}
+
+                                <span class="status-badge paid">
+                                    Paid
+                                </span>
+
+                            {% elif fine.payment_status == "Payment Overdue" %}
+
+                                <span class="status-badge overdue">
+                                    Overdue
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge unpaid">
+                                    Unpaid
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>{{ fine.created_at }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <i class="fas fa-file-circle-xmark"></i>
+
+            <h3>No fines found</h3>
+
+            <p>
+                No disciplinary fines are currently available for monitoring.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

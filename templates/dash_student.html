@@ -1,0 +1,492 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Student Dashboard | PRCDS
+{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_base.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ================= HEADER ================= -->
+<div class="dashboard-header">
+
+    <div>
+        <h2 class="dashboard-title">
+            Welcome back, {{ username }} 👋
+        </h2>
+
+        <p class="dashboard-subtitle">
+            Here’s your latest curfew activity and updates.
+        </p>
+
+        {% if not student_profile.student_official_pic %}
+        <div class="mt-3">
+            <a href="{{ url_for('student_profile') }}"
+            class="btn btn-warning rounded-pill px-4">
+
+                <i class="fa-solid fa-circle-exclamation me-2"></i>
+                Complete Your Profile Photo
+
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- ================= STATS ================= -->
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+        <div class="stat-card card-red">
+            <div>
+                <div class="stat-label">Total Violations</div>
+                <div class="stat-val">{{ total_violations }}</div>
+            </div>
+
+            <div class="icon-circle red">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card card-yellow">
+            <div>
+                <div class="stat-label">Pending Excuse Letters</div>
+                <div class="stat-val">{{ pending_excuse_letters }}</div>
+            </div>
+
+            <div class="icon-circle yellow">
+                <i class="fa-regular fa-file-lines"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card card-blue">
+            <div>
+                <div class="stat-label">Unread Notifications</div>
+                <div class="stat-val">{{ notification_count }}</div>
+            </div>
+
+            <div class="icon-circle blue">
+                <i class="fa-regular fa-bell"></i>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div class="row g-4">
+
+    <!-- RECENT VIOLATIONS -->
+    <div class="col-lg-6">
+
+        <div class="dashboard-box">
+
+            <div class="box-header">
+                <h5>Recent Violations</h5>
+
+                <a href="{{ url_for('student_violation_history') }}"
+                   class="view-btn">
+                    View More
+                </a>
+            </div>
+
+            <table class="table modern-table">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Remarks</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for v in recent_violations %}
+                    <tr>
+
+                        <td>
+                            {{ v.date.strftime('%d %b %Y') if v.date else '-' }}
+                        </td>
+
+                        <td>
+                            {{ v.remarks }}
+                        </td>
+
+                        <td>
+
+                            <span class="status-badge
+                            {% if v.status == 'Unexcused' %}
+                                status-danger
+                            {% elif v.status == 'Approved' %}
+                                status-success
+                            {% else %}
+                                status-warning
+                            {% endif %}
+                            ">
+
+                                {{ v.status }}
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+                {% else %}
+
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">
+                            No recent violations found
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- RECENT UPDATES -->
+    <div class="col-lg-6">
+
+        <div class="dashboard-box">
+
+            <div class="box-header">
+                <h5>Recent Updates</h5>
+            </div>
+
+            <div class="updates-list">
+
+                {% for update in updates %}
+
+                <div class="update-item">
+
+                    <div class="update-icon {{ update.color }}">
+                        <i class="fa-solid {{ update.icon }}"></i>
+                    </div>
+
+                    <div class="update-content">
+
+                        <div class="update-message">
+                            {{ update.message }}
+                        </div>
+
+                        <div class="update-date">
+                            {{ update.date.strftime('%d %b %Y %I:%M%p') if update.date else '-' }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% else %}
+
+                <div class="text-muted">
+                    No recent updates available
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ================= CURFEW INFO MODAL ================= -->
+
+<div class="modal fade"
+     id="curfewInfoModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <div class="modal-content curfew-modal">
+
+            <!-- HEADER -->
+            <div class="curfew-header">
+
+                <div class="curfew-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+
+                <div>
+
+                    <h2>Curfew Rules & Regulations</h2>
+
+                    <p>
+                        Please review the residential curfew regulations carefully.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- BODY -->
+            <div class="curfew-body">
+
+                <div class="rule-card">
+
+                    <div class="rule-number">
+                        01
+                    </div>
+
+                    <div>
+
+                        <h4>Curfew Hours</h4>
+
+                        <p>
+                            Students are required to remain inside
+                            the residential college from
+                            <strong>11:00 PM until 6:00 AM</strong>.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="rule-card">
+
+                    <div class="rule-number">
+                        02
+                    </div>
+
+                    <div>
+
+                        <h4>Curfew Violations</h4>
+
+                        <p>
+                            Students detected outside during curfew hours
+                            without valid approval may receive
+                            disciplinary action and penalties.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="rule-card">
+
+                    <div class="rule-number">
+                        03
+                    </div>
+
+                    <div>
+
+                        <h4>Warning Letters & Fines</h4>
+
+                        <p>
+                            Repeated curfew violations may result in
+                            warning letters, penalty payments,
+                            or further disciplinary investigation.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="rule-card">
+
+                    <div class="rule-number">
+                        04
+                    </div>
+
+                    <div>
+
+                        <h4>Excuse Letter Submission</h4>
+
+                        <p>
+                            Students with valid reasons must submit
+                            an excuse letter through the system
+                            for review and approval.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="curfew-footer">
+
+                <button type="button"
+                        class="btn-understand"
+                        data-bs-dismiss="modal">
+
+                    <i class="fa-solid fa-check"></i>
+                    I Understand
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% if urgent_notification and show_urgent_popup%}
+
+<div class="urgent-popup-overlay">
+    <div class="urgent-popup">
+
+        <div class="urgent-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+
+        <h2>{{ urgent_notification.title }}</h2>
+
+        <p>
+            {{ urgent_notification.message }}
+        </p>
+
+        <button onclick="closeUrgentPopup()">
+            Acknowledge
+        </button>
+
+    </div>
+</div>
+{% endif %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const shouldShowPopup =
+        "{{ show_curfew_popup }}" === "True";
+
+    if (shouldShowPopup) {
+
+        const modal = new bootstrap.Modal(
+            document.getElementById("curfewInfoModal")
+        );
+
+        modal.show();
+    }
+
+});
+</script>
+
+{% if show_profile_reminder %}
+<div class="modal fade show"
+     id="profileReminderModal"
+     tabindex="-1"
+     style="display:block;
+            background: rgba(0,0,0,0.55);
+            z-index:9999;">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content border-0 shadow-lg rounded-4">
+
+            <!-- HEADER -->
+            <div class="modal-header border-0 pb-0">
+
+                <h4 class="fw-bold mb-0">
+                    Complete Your Profile
+                </h4>
+
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body pt-2">
+
+                <div class="text-center mb-4">
+
+                    <div class="mb-3"
+                         style="
+                         width:80px;
+                         height:80px;
+                         background:#FEF3C7;
+                         color:#D97706;
+                         border-radius:50%;
+                         display:flex;
+                         align-items:center;
+                         justify-content:center;
+                         margin:auto;
+                         font-size:34px;">
+
+                        <i class="fa-solid fa-camera"></i>
+
+                    </div>
+
+                    <p class="text-muted mb-0">
+
+                        Please upload your official student
+                        profile photo to complete your account.
+
+                    </p>
+
+                </div>
+
+                <div class="alert alert-warning border-0 rounded-4">
+
+                    <strong>Photo Requirements:</strong>
+
+                    <ul class="mb-0 mt-2">
+                        <li>White/plain background preferred</li>
+                        <li>Face must be clearly visible</li>
+                        <li>No selfies or group photos</li>
+                        <li>Use official/passport-style image</li>
+                    </ul>
+
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="modal-footer border-0">
+
+                <button type="button"
+                        class="btn btn-light px-4"
+                        onclick="closeProfileReminder()">
+
+                    Remind Me Later
+
+                </button>
+
+                <a href="{{ url_for('student_profile') }}"
+                   class="btn btn-dark px-4">
+
+                    Do It Now
+
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function closeProfileReminder() {
+
+    document.getElementById(
+        "profileReminderModal"
+    ).style.display = "none";
+
+}
+</script>
+
+{% endif %}
+<script>
+function closeUrgentPopup() {
+    document.querySelector(".urgent-popup-overlay").style.display = "none";
+}
+</script>
+{% endblock %}

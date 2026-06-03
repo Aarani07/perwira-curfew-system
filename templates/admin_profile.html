@@ -1,0 +1,316 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+My Profile | PRCDS
+{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_profile.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="page-header mb-4">
+    <div>
+    
+        <div class="mt-3">
+            <h1 class="profile-name-header">MY PROFILE</h1>
+            <p class="profile-role-subheader">
+                VIEW AND MANAGE YOUR PERSONAL INFORMATION
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ================= PROFILE FORM ================= -->
+<div class="profile-card">
+
+    <!-- TOP SECTION -->
+        <div class="profile-top">
+
+            <!-- PROFILE IMAGE -->
+            <div class="profile-avatar">
+                <img src="{{ url_for(
+                    'static',
+                    filename='images/profiles/' ~
+                    (admin_data.admin_official_pic if admin_data.admin_official_pic else 'default.png')
+                ) }}"
+                class="student-avatar">
+            </div>
+
+            <!-- PROFILE INFO -->
+            <div class="profile-info">
+
+                <div class="profile-badge">
+                    System Administrator
+                </div>
+
+                <h1>
+                    {{ admin_data.name }}
+                </h1>
+
+                <div class="profile-role">
+                    {{ admin_data.position }}
+                </div>
+
+                <div class="profile-admin-id">
+                    ADMIN ID : {{ admin_data.admin_id }}
+                </div>
+
+            </div>
+
+            <!-- ACTION BUTTON -->
+            <div class="profile-actions">
+                <button class="edit-profile-btn" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Edit Profile
+                </button>
+            </div>
+
+        </div>
+
+        <!-- DETAILS GRID -->
+        <div class="profile-details-grid">
+
+            <div class="detail-card">
+                <div class="detail-label">
+                    <i class="fa-solid fa-user"></i>
+                    Full Name
+                </div>
+
+                <div class="detail-value">
+                    {{ admin_data.name }}
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-label">
+                    <i class="fa-solid fa-envelope"></i>
+                    Email Address
+                </div>
+
+                <div class="detail-value">
+                    {{ admin_data.email }}
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-label">
+                    <i class="fa-solid fa-phone"></i>
+                    Phone Number
+                </div>
+
+                <div class="detail-value">
+                    {{ admin_data.admin_phone }}
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-label">
+                    <i class="fa-solid fa-briefcase"></i>
+                    Position
+                </div>
+
+                <div class="detail-value">
+                    {{ admin_data.position }}
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-label">
+                    <i class="fa-solid fa-id-card"></i>
+                    Admin ID
+                </div>
+
+                <div class="detail-value">
+                    {{ admin_data.admin_id }}
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-label">
+                    <i class="fa-solid fa-calendar"></i>
+                    Join Date
+                </div>
+
+                <div class="detail-value">
+                    {{ admin_data.created_at.strftime('%d %B %Y') }}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= CHANGE PASSWORD ================= -->
+        <div class="profile-actions">
+            <a href="{{ url_for('update_password') }}" class="change-password-btn">
+                <i class="fa-solid fa-lock"></i>
+                Change Password
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content profile-modal">
+
+            <form method="POST"
+                  action="{{ url_for('update_admin_profile') }}"
+                  enctype="multipart/form-data">
+
+                <div class="modal-header border-0">
+                    <h4 class="modal-title fw-bold">
+                        Edit Profile
+                    </h4>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row g-4">
+
+                        <!-- FULL NAME -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Full Name
+                            </label>
+
+                            <input type="text"
+                                   name="name"
+                                   class="form-control profile-input"
+                                   value="{{ admin_data.name }}"
+                                   required>
+                        </div>
+
+                        <!-- EMAIL -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Email Address
+                            </label>
+
+                            <input type="email"
+                                   name="email"
+                                   class="form-control profile-input"
+                                   value="{{ admin_data.email }}"
+                                   required>
+                        </div>
+
+                        <!-- PHONE -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Phone Number
+                            </label>
+
+                            <input type="text"
+                                   name="phone"
+                                   class="form-control profile-input"
+                                   value="{{ admin_data.admin_phone }}">
+                        </div>
+
+                        <!-- POSITION -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Position
+                            </label>
+
+                            <input type="text"
+                                   name="position"
+                                   class="form-control profile-input"
+                                   value="{{ admin_data.position }}">
+                        </div>
+
+                        <!-- ADMIN ID -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Admin ID
+                            </label>
+
+                            <input type="text"
+                                   class="form-control profile-input"
+                                   value="{{ admin_data.admin_id }}"
+                                   readonly>
+                        </div>
+
+                        <!-- PROFILE PICTURE -->
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Profile Picture
+                            </label>
+
+                            <input type="file"
+                                   name="profile_pic"
+                                   class="form-control profile-input">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0">
+
+                    <button type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="submit"
+                            class="save-profile-btn">
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('profilePreview').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+document.getElementById('editProfileBtn').addEventListener('click', function () {
+    const fields = [
+        { selector: '#field-name', name: 'name' },
+        { selector: '#field-email', name: 'email' },
+        { selector: '#field-phone', name: 'phone' },
+        { selector: '#field-position', name: 'position' }
+    ];
+
+    if (this.dataset.mode !== 'edit') {
+        fields.forEach(f => {
+            const el = document.querySelector(f.selector);
+            const value = el.innerText.trim();
+            el.innerHTML =
+                `<input type="text"
+                        class="form-control form-control-sm"
+                        name="${f.name}"
+                        value="${value}">`;
+        });
+
+        this.dataset.mode = 'edit';
+        this.innerHTML = 'SAVE CHANGES <i class="fa-solid fa-check ms-2"></i>';
+        this.classList.replace('btn-edit-black', 'btn-success');
+    } else {
+        document.getElementById('profileForm').submit();
+    }
+});
+</script>
+{% endblock %}

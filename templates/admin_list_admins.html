@@ -1,0 +1,344 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}List of Administrators | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="user-management-tabs">
+
+    <a href="{{ url_for('admin_list_students') }}"
+       class="user-tab">
+        <i class="fa-solid fa-user-graduate"></i>
+        <span>List of Students</span>
+        <div class="tab-count">
+            {{ students|length }}
+        </div>
+    </a>
+
+    <a href="{{ url_for('admin_list_security') }}"
+       class="user-tab">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>List of Security Officers</span>
+        <div class="tab-count">
+            {{ security_count }}
+        </div>
+    </a>
+
+    <a href="{{ url_for('admin_list_admins') }}"
+       class="user-tab active">
+        <i class="fa-solid fa-user-tie"></i>
+        <span>List of Administrators</span>
+        <div class="tab-count">
+            {{ admin_count }}
+        </div>
+    </a>
+
+</div>
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">List of Administrators</h2>
+        <p class="page-subtitle">Manage administrator roles and access privileges</p>
+    </div>
+    <button class="add-new-btn"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#addAdminModal">
+        <i class="fas fa-plus me-2"></i> Add New Administrator
+    </button>
+</div>
+
+<div class="control-bar">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="adminSearch" placeholder="Search by name or admin ID...">
+    </div>
+
+    <div class="d-flex gap-2">
+        <select class="form-select">
+            <option>All Roles</option>
+            <option>Super Admin</option>
+            <option>System Admin</option>
+            <option>Residential Admin</option>
+            <option>Data Admin</option>
+            <option>Support Admin</option>
+        </select>
+
+        <select class="form-select">
+            <option>All Status</option>
+            <option>Active</option>
+            <option>Inactive</option>
+        </select>
+
+        <a href="#" class="export-btn fancy-export-btn">
+            <i class="fa-solid fa-file-arrow-down"></i>
+            Export List
+        </a>
+    </div>
+</div>
+
+<div class="data-table-container">
+<table>
+<thead>
+<tr>
+    <th>Admin Name</th>
+    <th>Admin ID</th>
+    <th>Role</th>
+    <th>Phone</th>
+    <th>Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for admin in admins %}
+<tr>
+
+    <!-- ADMIN INFO -->
+    <td>
+        <div class="student-info">
+
+            <img src="{{ url_for(
+                'static',
+                filename='images/profiles/' ~
+                (admin.admin_official_pic if admin.admin_official_pic else 'default.png')
+            ) }}"
+            class="student-avatar">
+
+            <div>
+                <div class="student-name">
+                    {{ admin.admin_name }}
+                </div>
+
+                <div class="student-email">
+                    {{ admin.admin_email }}
+                </div>
+            </div>
+
+        </div>
+    </td>
+
+    <!-- ADMIN ID -->
+    <td>{{ admin.admin_id }}</td>
+
+    <!-- ROLE -->
+    <td>
+        <span class="role-badge">
+            {{ admin.position }}
+        </span>
+    </td>
+
+    <!-- PHONE -->
+    <td>{{ admin.admin_phone }}</td>
+
+    <!-- ACTIONS -->
+    <td>
+        <div class="action-buttons">
+
+            <a href="#"
+                class="view-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#viewAdminModal"
+
+                data-name="{{ admin.admin_name }}"
+                data-id="{{ admin.admin_id }}"
+                data-role="{{ admin.position }}"
+                data-email="{{ admin.admin_email }}"
+                data-phone="{{ admin.admin_phone }}"
+
+                data-image="{{ url_for(
+                    'static',
+                    filename='images/profiles/' ~
+                    (admin.admin_official_pic if admin.admin_official_pic else 'default.png')
+                ) }}">
+
+                <i class="fa-solid fa-eye"></i>
+
+            </a>
+
+            <form method="POST"
+                  action="{{ url_for('admin_delete_admin', user_id=admin.user_id) }}"
+                  onsubmit="return confirm('Delete this admin?')">
+
+                <button type="submit" class="delete-btn">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+
+            </form>
+
+        </div>
+    </td>
+
+</tr>
+{% else %}
+<tr>
+    <td colspan="7" class="text-center py-5 text-muted">
+        No administrators found.
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<!-- ================= ADD ADMIN MODAL ================= -->
+<div class="modal fade" id="addAdminModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <form method="POST" action="{{ url_for('admin_add_admin') }}">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Administrator</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Admin Name *</label>
+                            <input type="text" name="admin_name" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Admin ID *</label>
+                            <input type="text" name="admin_id" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="admin_email" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone *</label>
+                            <input type="text" name="admin_phone" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Role *</label>
+                            <select name="position" class="form-select" required>
+                                <option value="Super Admin">Super Admin</option>
+                                <option value="System Admin">System Admin</option>
+                                <option value="Residential Admin">Residential Admin</option>
+                                <option value="Data Admin">Data Admin</option>
+                                <option value="Support Admin">Support Admin</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-dark">
+                        <i class="fa-solid fa-user-plus"></i> Add Admin
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+<!-- ================= VIEW ADMIN MODAL ================= -->
+
+<div class="modal fade" id="viewAdminModal" tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content modern-modal">
+
+            <div class="modal-body">
+
+                <button type="button"
+                        class="modern-close"
+                        data-bs-dismiss="modal">
+
+                    <i class="fa-solid fa-xmark"></i>
+
+                </button>
+
+                <!-- PROFILE SECTION -->
+
+                <div class="modern-profile-section">
+
+                    <img id="viewAdminImage"
+                        src="{{ url_for('static', filename='images/profiles/default.png') }}"
+                        class="modern-profile-pic">
+
+                    <h2 id="viewAdminName"></h2>
+
+                    <p>Administrator Information</p>
+
+                </div>
+
+                <!-- INFO GRID -->
+
+                <div class="modern-info-grid">
+
+                    <div class="modern-info-card">
+                        <label>Admin ID</label>
+                        <h5 id="viewAdminID"></h5>
+                    </div>
+
+                    <div class="modern-info-card">
+                        <label>Role</label>
+                        <h5 id="viewAdminRole"></h5>
+                    </div>
+
+                    <div class="modern-info-card">
+                        <label>Email Address</label>
+                        <h5 id="viewAdminEmail"></h5>
+                    </div>
+
+                    <div class="modern-info-card">
+                        <label>Phone Number</label>
+                        <h5 id="viewAdminPhone"></h5>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+document.querySelectorAll('.view-btn').forEach(button => {
+
+    button.addEventListener('click', function () {
+
+        document.getElementById('viewAdminName').innerText =
+            this.dataset.name;
+
+        document.getElementById('viewAdminID').innerText =
+            this.dataset.id;
+
+        document.getElementById('viewAdminRole').innerText =
+            this.dataset.role;
+
+        document.getElementById('viewAdminEmail').innerText =
+            this.dataset.email;
+
+        document.getElementById('viewAdminPhone').innerText =
+            this.dataset.phone;
+
+        document.getElementById('viewAdminImage').src =
+            this.dataset.image;
+
+    });
+
+});
+
+</script>
+{% endblock %}

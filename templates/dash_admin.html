@@ -1,0 +1,258 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Admin Dashboard | PRCDS
+{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/camera.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ===== WELCOME TEXT ===== -->
+    <div class="welcome-section">
+        <h2>
+            Welcome in, {{ active_user.name }}
+        </h2>
+    </div>
+
+    <!-- ===== STAT CARDS ===== -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card card-red">
+                <div>
+                    <div class="stat-label">
+                        Pending Violations
+                    </div>
+
+                    <div class="stat-val text-danger">
+                        {{ stats.pending_violations }}
+                    </div>
+                </div>
+
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card card-yellow">
+                <div>
+
+                    <div class="stat-label">
+                        Pending Excuse Letters
+                    </div>
+
+                    <div class="stat-val text-warning">
+                        {{ stats.pending_excuse_letters }}
+                    </div>
+
+                </div>
+
+                <i class="fa-solid fa-clipboard-list"></i>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card card-blue">
+                <div>
+
+                    <div class="stat-label">
+                        Pending Warning Letters
+                    </div>
+
+                    <div class="stat-val text-primary">
+                        {{ stats.pending_warning_letters }}
+                    </div>
+
+                </div>
+
+                <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CHART + NOTIFICATIONS ===== -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="chart-container">
+                <h6 class="fw-bold mb-3">Monthly Curfew Violation Trend</h6>
+                <canvas id="violationChart"
+                        data-labels='{{ monthly_labels | tojson }}'
+                        data-values='{{ monthly_values | tojson }}'></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+
+            <!-- NOTIFICATIONS -->
+            <div class="notif-container mb-4">
+
+                <div class="dashboard-section-header">
+                    <h6>System Notifications</h6>
+                </div>
+
+                <div class="notification-list">
+                    {% for notif in notifications %}
+                    <div class="alert-card
+                        {% if loop.index == 1 %}
+                            alert-red
+                        {% elif loop.index == 2 %}
+                            alert-yellow
+                        {% elif loop.index == 3 %}
+                            alert-blue
+                        {% else %}
+                            alert-green
+                        {% endif %}
+                    ">
+                        <div class="alert-dot"></div>
+
+                        <div class="alert-content">
+
+                            <div class="alert-message">
+                                {{ notif.message }}
+                            </div>
+
+                            <div class="alert-time">
+                                {{ notif.time_ago }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="empty-notif-box">
+                        No new notifications.
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <div class="notif-footer">
+                    <a href="{{ url_for('admin_notifications') }}"
+                    class="notif-view-btn">
+
+                        View All Notifications
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== LIVE ACTIVITY TABLE ===== -->
+    <div class="table-container">
+        <h6 class="fw-bold mb-3">Live Face Recognition Activity</h6>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Matric Number</th>
+                    <th>Block</th>
+                    <th>Time</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in activity_logs %}
+                <tr>
+                    <td>{{ log.student_name }}</td>
+                    <td>{{ log.matric_number }}</td>
+                    <td>{{ log.block }}</td>
+                    <td>{{ log.timestamp.strftime('%H:%M') }}</td>
+                    <td>{{ log.method }}</td>
+                    <td>
+                        <span class="badge {{ 'bg-danger' if log.status == 'Detected' else 'bg-success' }}">
+                            {{ log.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="dashboard-table-footer">
+
+            <a href="{{ url_for('admin_violations') }}"
+            class="view-more-btn">
+
+                View More Activity
+
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions-wrapper">
+            <div class="quick-actions-modern-grid">
+                
+                <a href="{{ url_for('admin_list_students') }}"
+                    class="modern-action-card">
+                    
+                    <div class="action-icon blue-icon">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+
+                    <div>
+                        <div class="action-title">
+                            Add New User
+                        </div>
+
+                        <div class="action-subtitle">
+                            Register new users into the system
+                        </div>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('admin_excuse_letter') }}"
+                    class="modern-action-card">
+
+                    <div class="action-icon yellow-icon">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </div>
+
+                    <div>
+                        <div class="action-title">
+                            View Excuse Letters
+                        </div>
+
+                            <div class="action-subtitle">
+                                Review pending excuse submissions
+                            </div>
+                        </div>
+                </a>
+
+                <a href="{{ url_for('admin_warning_letters') }}"
+                    class="modern-action-card">
+
+                    <div class="action-icon purple-icon">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                    </div>
+
+                    <div>
+                        <div class="action-title">
+                            Warning Letters
+                        </div>
+
+                        <div class="action-subtitle">
+                            Manage student warning notices
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='javascript/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='javascript/camera_logic.js') }}"></script>
+{% endblock %}

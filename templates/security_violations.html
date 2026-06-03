@@ -1,0 +1,127 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Violation List | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/officer_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="user-list-page">
+
+    <!-- ✅ PAGE HEADER (MOVED HERE) -->
+    <div class="page-header">
+        <div>
+            <h2 class="page-title">Violation List</h2>
+            <p class="page-subtitle">
+                Monitor and manage detected curfew violations
+            </p>
+        </div>
+    </div>
+
+    <!-- ✅ CONTROL BAR -->
+    <div class="control-bar">
+
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+                type="text"
+                id="violationSearch"
+                placeholder="Search by student name or matric number">
+        </div>
+
+        <div class="d-flex gap-2">
+            <select id="blockFilter" class="form-select">
+                <option value="">All Blocks</option>
+                <option value="block a">Block A</option>
+                <option value="block b">Block B</option>
+                <option value="block c">Block C</option>
+            </select>
+
+            <select id="statusFilter" class="form-select">
+                <option value="">All Status</option>
+                <option value="unexcused">Unexcused</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ✅ TABLE (NO BOOTSTRAP .table CLASS) -->
+    <div class="data-table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Matric Number</th>
+                    <th>Block & Room</th>
+                    <th>Date</th>
+                    <th>Violation Count</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody id="violationTable">
+                {% for v in violations %}
+                <tr>
+                    <td>{{ v.student_name }}</td>
+                    <td>{{ v.matric_number }}</td>
+                    <td>{{ v.block }} - {{ v.room }}</td>
+                    <td>{{ v.violation_date }}</td>
+
+                    <td>
+                        <span class="badge rounded-pill
+                            {{ 'bg-danger' if v.violation_count >= 3 else 'bg-secondary' }}">
+                            {{ v.violation_count }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% if v.status == 'Pending' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% elif v.status == 'Approved' %}
+                            <span class="badge bg-success">Approved</span>
+                        {% else %}
+                            <span class="badge bg-danger">Unexcused</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No violation records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterTable() {
+    const search = document.getElementById("violationSearch").value.toLowerCase();
+    const block = document.getElementById("blockFilter").value.toLowerCase();
+    const status = document.getElementById("statusFilter").value.toLowerCase();
+
+    document.querySelectorAll("#violationTable tr").forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display =
+            text.includes(search) &&
+            (!block || text.includes(block)) &&
+            (!status || text.includes(status))
+            ? ""
+            : "none";
+    });
+}
+
+document.getElementById("violationSearch").addEventListener("keyup", filterTable);
+document.getElementById("blockFilter").addEventListener("change", filterTable);
+document.getElementById("statusFilter").addEventListener("change", filterTable);
+</script>
+{% endblock %}

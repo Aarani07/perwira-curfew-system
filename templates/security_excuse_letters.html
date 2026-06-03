@@ -1,0 +1,124 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}View Excuse Letters | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">Excuse Letters</h3>
+        <p class="text-muted mb-0">
+            View submitted excuse letters and their approval status
+        </p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Letters</p>
+                    <h3 class="fw-bold mb-0">{{ total_letters if total_letters is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Pending</p>
+                    <h3 class="fw-bold mb-0">{{ pending_letters if pending_letters is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Approved Letters</p>
+                    <h3 class="fw-bold mb-0">{{ approved_letters if approved_letters is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-1">Submitted Excuse Letters</h5>
+            <p class="text-muted mb-0">Security officers can view the excuse letter status for monitoring purposes</p>
+        </div>
+
+        <div class="card-body px-4 pb-4">
+            {% if letters and letters|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Matric No</th>
+                            <th>Violation Date</th>
+                            <th>Reason</th>
+                            <th>Document</th>
+                            <th>Status</th>
+                            <th>Submitted At</th>
+                            <th>Admin Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for l in letters %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ l.student_name }}</td>
+                            <td>{{ l.matric_no }}</td>
+                            <td>
+                                {{ l.violation_date if l.violation_date else '-' }}
+                            </td>
+                            <td style="max-width: 220px;">
+                                <div class="text-truncate" title="{{ l.reason }}">
+                                    {{ l.reason if l.reason else '-' }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-muted">
+                                    No attachment
+                                </span>
+                            </td>
+                            <td>
+                                {% if l.status == 'Pending' %}
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Pending</span>
+                                {% elif l.status in ['Approved'] %}
+                                    <span class="badge bg-success px-3 py-2 rounded-pill">{{ l.status }}</span>
+                                {% elif l.status == 'Unexcused' %}
+                                    <span class="badge bg-danger px-3 py-2 rounded-pill">Unexcused</span>
+                                {% else %}
+                                    <span class="badge bg-secondary px-3 py-2 rounded-pill">{{ l.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ l.submitted_at if l.submitted_at else '-' }}</td>
+                            <td>{{ l.admin_remarks if l.admin_remarks else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3 fs-1 text-muted">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <h5 class="fw-bold">No excuse letters found</h5>
+                <p class="text-muted">There are currently no submitted excuse letters to display.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

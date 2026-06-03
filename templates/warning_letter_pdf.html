@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 40px;
+            color: #000;
+        }
+
+        .letter-container {
+            width: 100%;
+        }
+
+        .letter-header {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            width: 80px;
+        }
+
+        .header-text {
+            margin-left: 15px;
+            line-height: 1.4;
+        }
+
+        hr {
+            margin: 15px 0;
+        }
+
+        .letter-top {
+            display: flex;
+            justify-content: space-between;
+            width: 100px;
+            margin-bottom: 15px;
+        }
+
+        .student-info {
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .letter-title {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .violation-box {
+            background: #f1f3f5;
+            padding: 10px;
+            border-left: 4px solid #0d6efd;
+            margin-top: 10px;
+        }
+
+        .discipline-box {
+            background: #fff3cd;
+            padding: 10px;
+            border: 1px solid #ffc107;
+            margin-top: 10px;
+        }
+
+        .signature {
+            margin-top: 40px;
+        }
+
+        .ack-box {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .ack-sign {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="letter-container">
+
+    <!-- HEADER -->
+    <div class="letter-header">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/about/uthm_logo.png', _external=True) }}">
+        </div>
+        <div class="header-text">
+            <strong>UNIVERSITI TUN HUSSEIN ONN MALAYSIA</strong><br>
+            Kolej Kediaman Luar Kampus (KKLK)<br>
+            86400 Parit Raja, Batu Pahat, Johor Darul Ta'zim, Malaysia<br>
+            Tel: +607-453 7000 | Email: kklk@uthm.edu.my
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- REF + DATE -->
+    <table style="width:100%;">
+        <tr>
+            <td>
+                <small>Our Ref:</small><br>
+                UTHM/KKLK/WL{{ letter.warning_id }}/2026
+            </td>
+            <td style="text-align:right;">
+                <small>Date:</small><br>
+                {{ letter.issued_at.strftime('%d %B %Y') if letter.issued_at else '-' }}
+            </td>
+        </tr>
+    </table>
+
+    <!-- STUDENT INFO -->
+    <div class="student-info">
+        <strong>To:</strong><br>
+        <strong>{{ letter.student_name }}</strong><br>
+        {{ letter.matric_no }}<br>
+        {% if letter.block_room %}
+            {{ letter.block_room }}<br>
+        {% endif %}<br>
+        UTHM Residential College
+    </div>
+
+    <!-- TITLE -->
+    <p class="letter-title">
+        RE: OFFICIAL WARNING - VIOLATION OF RESIDENTIAL CURFEW POLICY
+    </p>
+
+    <!-- BODY -->
+    <p>Dear {{ letter.student_name }},</p>
+
+    <p>
+        This letter serves as an official written warning concerning your violation of the 
+        Universiti Tun Hussein Onn Malaysia (UTHM) Residential College curfew regulations.
+    </p>
+
+    <!-- VIOLATION -->
+    <div class="violation-box">
+        <strong>VIOLATION DETAILS:</strong><br><br>
+        Date of Incident: {% if letter.violation_date %}
+                            {{ letter.violation_date.strftime('%d %B %Y') }}
+                        {% else %}
+                            -
+                        {% endif %}<br>
+        Time of Entry: {{ letter.violation_time if letter.violation_time else '-' }}<br>
+        Permitted Curfew Time: 11:00 PM<br>
+        Violation Type: Late Return to Residential Premises
+    </div>
+
+    <p>
+        The above violation has been documented through our automated system and verified by 
+        the security personnel on duty. This conduct constitutes a breach of the residential 
+        policies as outlined in the UTHM Student Residential Code of Conduct.
+    </p>
+
+    <!-- DISCIPLINE -->
+    <div class="discipline-box">
+        <strong>DISCIPLINARY CONSEQUENCES:</strong>
+        <ul>
+            <li>Formal disciplinary hearing</li>
+            <li>Monetary fines</li>
+            <li>Suspension of privileges</li>
+            <li>Notation on academic record</li>
+            <li>Referral to Student Affairs</li>
+        </ul>
+    </div>
+
+    <p>
+        You are required to submit a written explanation within <b>7 days</b>.
+    </p>
+
+    <p>We appreciate your immediate attention to this matter.</p>
+
+    <p>Yours faithfully,</p>
+
+    <!-- SIGNATURE -->
+    <div class="signature">
+        {% if letter.admin_signature %}
+            <img src="{{ letter.admin_signature }}" style="width:200px;"><br>
+            <strong>Admin</strong><br>
+            Warden<br>
+            Kolej Kediaman Luar Kampus (KKLK)
+        {% else %}
+            ___________________________<br>
+            [Authorized Signatory]
+        {% endif %}
+    </div>
+
+    <!-- ACK -->
+    <div class="ack-box">
+        <strong>ACKNOWLEDGEMENT OF RECEIPT</strong><br><br>
+
+        I, {{ letter.student_name }} ({{ letter.matric_no }}), hereby acknowledge that I have 
+        received and read this warning letter.
+
+        <div class="ack-sign">
+
+            <div style="margin-top:30px;">
+                {% if letter.student_signature %}
+                    <img src="{{ letter.student_signature }}" style="width:200px;"><br>
+                {% else %}
+                    ___________________________<br>
+                {% endif %}
+
+                <strong>Student Signature</strong><br>
+                Name: {{ letter.student_name }}<br>
+
+                {% if letter.acknowledged_at and letter.acknowledged_at != '0000-00-00 00:00:00' %}
+                    Date: {{ letter.acknowledged_at.strftime('%d %B %Y') }}
+                {% else %}
+                    Date: ___________________________
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <p class="footer-note">
+        This is an official disciplinary document generated by the UTHM Residential Curfew Detection System.
+    </p>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,560 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}My Warning Letters | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_user_list.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/warning_letter.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <div class="modern-page-header">
+
+        <div class="header-content">
+
+            <h1 class="modern-page-title">
+                Warning Letters
+            </h1>
+
+            <p class="modern-page-subtitle">
+                Review official disciplinary warning letters issued to your account,
+                monitor acknowledgement status, and access important student conduct records.
+            </p>
+
+        </div>
+
+        <div class="header-stats">
+
+            <!-- TOTAL LETTERS -->
+            <div class="mini-stat-card">
+
+                <div class="mini-stat-icon red">
+                    <i class="fa-solid fa-file-circle-exclamation"></i>
+                </div>
+
+                <div>
+                    <div class="mini-stat-value">
+                        {{ total_letters if total_letters is defined else 0 }}
+                    </div>
+
+                    <div class="mini-stat-label">
+                        Total Letters
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PENDING -->
+            <div class="mini-stat-card">
+
+                <div class="mini-stat-icon yellow">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+
+                <div>
+                    <div class="mini-stat-value">
+                        {{ pending_letters if pending_letters is defined else 0 }}
+                    </div>
+
+                    <div class="mini-stat-label">
+                        Pending Review
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACKNOWLEDGED -->
+            <div class="mini-stat-card">
+
+                <div class="mini-stat-icon green">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+
+                <div>
+                    <div class="mini-stat-value">
+                        {{ acknowledged_letters if acknowledged_letters is defined else 0 }}
+                    </div>
+
+                    <div class="mini-stat-label">
+                        Verified
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Warning Letters Table -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-1">Issued Warning Letters</h5>
+            <p class="text-muted mb-0">Review the warning letters issued to your account</p>
+        </div>
+
+        <div class="card-body px-4 pb-4">
+            {% if warning_letters and warning_letters|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Letter No.</th>
+                            <th>Violation Date</th>
+                            <th>Issued Date</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Letter File</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for w in warning_letters %}
+                        <tr>
+                            <td>WL{{ "%03d"|format(w.warning_id) }}</td>
+
+                            <!-- VIOLATION DATE -->
+                            <td>
+                                {% if w.violation_date %}
+                                    {{ w.violation_date.strftime('%d %B %Y') }}<br>
+                                    <small class="text-muted">
+                                        {{ w.violation_time if w.violation_time else '-' }}
+                                    </small>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>{{ w.issued_at.strftime('%d %B %Y') if w.issued_at else '-' }}</td>
+                            <td style="max-width: 260px;">
+                                <div class="text-truncate" title="{{ w.reason }}">
+                                    {{ w.reason if w.reason else '-' }}
+                                </div>
+                            </td>
+                            <td>
+                                {% if w.warning_letter_status == 'Sent to Student' %}
+                                    <span class="status-badge bg-warning text-dark px-3 py-2 rounded-pill" id="statusBadge">
+                                        Sent to Student
+                                    </span>
+
+                                {% elif w.warning_letter_status == 'Confirmed' %}
+                                    <span class="badge bg-success px-3 py-2 rounded-pill" id="statusBadge">
+                                        Confirmed
+                                    </span>
+
+                                {% else %}
+                                    <span class="badge bg-secondary px-3 py-2 rounded-pill">
+                                        {{ w.warning_letter_status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill"
+                                        onclick="openWarningModal('{{ w.warning_id }}')">
+                                        <i class="fa-solid fa-eye me-1"></i>View
+                                    </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3 fs-1 text-muted">
+                    <i class="fa-solid fa-file-circle-xmark"></i>
+                </div>
+                <h5 class="fw-bold">No warning letters found</h5>
+                <p class="text-muted">You have not received any warning letters at the moment.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+<div class="modal fade appeal-modal" id="warningModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header">
+
+                <div class="w-100 d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <h5 class="fw-bold mb-0">
+                            Warning Letter - <span id="modalLetterId"></span>
+                        </h5>
+
+                        <small id="modalStatus" class="d-block mt-1"></small>
+                    </div>
+
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+
+                </div>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div id="letterContent">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+
+            </div>
+
+            <div class="modal-footer d-flex justify-content-between">
+                <div>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+
+                <div>
+                    <button class="btn btn-primary me-2"
+                            onclick="downloadLetter(currentLetterId)">
+                        <i class="fa-solid fa-download me-1"></i>Download
+                    </button>
+
+                    <button class="btn btn-success" id="ackBtn"
+                        onclick="openSignaturePad()">
+                        ✔ Sign & Acknowledge
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade appeal-modal" id="signatureModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content p-3">
+
+        <div class="modal-header">
+            <h5 class="fw-bold">Sign Here</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+      <canvas id="signatureCanvas" width="600" height="200"
+        style="border:1px solid #ccc; width:100%; display:block;"></canvas>
+
+      <div class="mt-3 text-end">
+        <button class="btn btn-secondary" onclick="clearCanvas()">Clear</button>
+        <button class="btn btn-success" onclick="submitSignature()">Confirm Signature</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+let currentLetterId = null;
+let canvas, ctx, drawing = false;
+
+function openSignaturePad() {
+
+    // 🔥 CLOSE letter modal first
+    const warningModal = bootstrap.Modal.getInstance(document.getElementById("warningModal"));
+    if (warningModal) warningModal.hide();
+
+    const modalEl = document.getElementById("signatureModal");
+
+    let modal = bootstrap.Modal.getInstance(modalEl);
+    if (!modal) modal = new bootstrap.Modal(modalEl);
+
+    modal.show();
+
+    modalEl.addEventListener('shown.bs.modal', function handler() {
+
+        modalEl.removeEventListener('shown.bs.modal', handler);
+
+        canvas = document.getElementById("signatureCanvas");
+        ctx = canvas.getContext("2d");
+
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 200;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        canvas.onmousedown = (e) => {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        };
+
+        canvas.onmouseup = () => drawing = false;
+        canvas.onmouseleave = () => drawing = false;
+
+        canvas.onmousemove = (e) => {
+            if (!drawing) return;
+            ctx.lineWidth = 2;
+            ctx.lineCap = "round";
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        };
+    });
+}
+
+function startDraw(e) {
+    drawing = true;
+    ctx.beginPath();
+}
+
+function stopDraw() {
+    drawing = false;
+}
+
+function draw(e) {
+    if (!drawing) return;
+
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+}
+
+function clearCanvas() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function submitSignature() {
+
+    const canvas = document.getElementById("signatureCanvas");
+
+    if (!canvas) {
+        alert("Canvas not found.");
+        return;
+    }
+
+    // ✅ check empty canvas
+    const blank = document.createElement("canvas");
+    blank.width = canvas.width;
+    blank.height = canvas.height;
+
+    if (canvas.toDataURL() === blank.toDataURL()) {
+        alert("Please provide your signature first.");
+        return;
+    }
+
+    const signature = canvas.toDataURL("image/png");
+
+    fetch(`/student/acknowledge-letter/${currentLetterId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            signature: signature
+        })
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        console.log("SUCCESS RESPONSE:", data);
+
+        if (!data.success) {
+            alert(data.message || "Failed to submit signature.");
+            return;
+        }
+
+        // ✅ update signature section
+        const studentSignature =
+            document.getElementById("studentSignature");
+
+        if (studentSignature) {
+
+            studentSignature.innerHTML = `
+                <img src="${signature}" style="width:200px;"><br>
+                <strong>Student Signature</strong><br>
+                Name: Student
+            `;
+        }
+
+        // ✅ update date section
+        const signatureDate =
+            document.getElementById("signatureDate");
+
+        if (signatureDate) {
+
+            const today = new Date();
+
+            const formattedDate =
+                today.toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+            signatureDate.innerHTML = `
+                <strong>Date:</strong><br>
+                ${formattedDate}
+            `;
+        }
+
+        // ✅ hide sign button
+        const ackBtn = document.getElementById("ackBtn");
+
+        if (ackBtn) {
+            ackBtn.style.display = "none";
+        }
+
+        // ✅ close modal SAFELY
+        const modalEl =
+            document.getElementById("signatureModal");
+
+        if (modalEl) {
+
+            const modal =
+                bootstrap.Modal.getInstance(modalEl);
+
+            if (modal) {
+                modal.hide();
+            }
+        }
+
+        // ✅ remove dark backdrop manually
+        document
+            .querySelectorAll(".modal-backdrop")
+            .forEach(el => el.remove());
+
+        document.body.classList.remove("modal-open");
+        document.body.style = "";
+
+        // ✅ reload warning letter instantly
+        fetch(`/student/get-warning-letter/${currentLetterId}`)
+        .then(res => res.text())
+        .then(html => {
+
+            // reload modal body
+            document.getElementById("letterContent").innerHTML = html;
+
+            // ✅ update status text instantly
+            const statusBadge = document.querySelector(".status-badge");
+
+            if (statusBadge) {
+
+                statusBadge.innerText = "Confirmed";
+
+                // optional styling
+                statusBadge.classList.remove(
+                    "bg-warning",
+                    "bg-primary"
+                );
+
+                statusBadge.classList.add("bg-success");
+            }
+
+            // ✅ hide acknowledge button
+            const ackBtn =
+                document.getElementById("ackBtn");
+
+            if (ackBtn) {
+                ackBtn.style.display = "none";
+            }
+
+            // ✅ success popup
+            alert("Signature submitted successfully!");
+
+        });
+
+    })
+
+    .catch(error => {
+
+        console.error("JS ERROR:", error);
+
+        alert("Frontend error. Check console.");
+    });
+}
+
+function openWarningModal(id) {
+    currentLetterId = id;
+
+    fetch(`/student/get-warning-letter/${id}`)
+    .then(res => res.text())
+    .then(html => {
+
+        // 🔥 load content
+        document.getElementById("letterContent").innerHTML = html;
+
+        const ackBtn = document.getElementById("ackBtn");
+        const statusEl = document.getElementById("modalStatus");
+
+        // 🔥 get REAL status from backend (not passed value)
+        const realStatus = document.getElementById("letterStatus")?.dataset.status;
+
+        // 🔥 control button + status
+        if (realStatus === "Confirmed") {
+            ackBtn.style.display = "none";
+            statusEl.innerHTML = '<span class="badge bg-success">Confirmed</span>';
+        } 
+        else if (realStatus === "Sent to Student") {
+            ackBtn.style.display = "inline-block";
+            statusEl.innerHTML = '<span class="badge bg-warning text-dark">Sent to Student</span>';
+        } 
+        else {
+            ackBtn.style.display = "none";
+            statusEl.innerHTML = '<span class="badge bg-secondary">' + realStatus + '</span>';
+        }
+
+        // 🔥 set modal title
+        document.getElementById("modalLetterId").innerText = id;
+
+        // 🔥 SHOW MODAL (you were missing this)
+        const modalEl = document.getElementById("warningModal");
+        let modal = bootstrap.Modal.getInstance(modalEl);
+        if (!modal) modal = new bootstrap.Modal(modalEl);
+
+        modal.show();
+    });
+}
+
+function downloadLetter(id) {
+    window.open(`/student/download-warning-letter/${id}`, "_blank");
+}
+
+function acknowledgeLetter(id) {
+
+    fetch(`/student/acknowledge-letter/${id}`, {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.success) {
+
+            // 🔥 update signature
+            const sig = document.getElementById("studentSignature");
+            const date = document.getElementById("signatureDate");
+
+            sig.innerHTML = `<strong>${data.student_name}</strong><br>Student Signature`;
+
+            const today = new Date().toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            date.innerHTML = `${today}<br>Date`;
+
+            // 🔥 hide button
+            document.getElementById("ackBtn").style.display = "none";
+
+            // 🔥 update status badge
+            document.getElementById("modalStatus").innerHTML =
+                '<span class="badge bg-success">Confirmed</span>';
+
+            alert("Letter acknowledged successfully!");
+        } 
+        else {
+            alert(data.message || "Unable to acknowledge.");
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,338 @@
+/* =======================================
+    PAGE SPECIFIC STYLING (User Lists)
+   ======================================= */
+
+.user-list-page {
+    font-family: 'Poppins', sans-serif;
+}
+
+.user-list-page *,
+.user-list-page *::before,
+.user-list-page *::after {
+    box-sizing: border-box;
+}
+
+
+/* --- Page Header --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    color: #333 !important;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #666 !important;
+    margin-top: 5px;
+}
+/* =====================================================
+   SIDEBAR
+===================================================== */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 12px rgba(0,0,0,0.03);
+}
+
+.sidebar-header {
+    padding: 20px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: center;
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.sidebar-logo {
+    height: 34px;
+}
+
+.sidebar-brand {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1e293b;
+    text-transform: uppercase;
+}
+
+/* --- ADD NEW BUTTON (FIXED) --- */
+.add-new-btn {
+    background: #0d6efd !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 14px rgba(13, 110, 253, 0.25);
+    transition: all 0.25s ease;
+}
+
+.add-new-btn:hover {
+    background: #0b5ed7 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(13, 110, 253, 0.35);
+}
+
+/* --- Control Bar --- */
+.control-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box i {
+    position: absolute;
+    left: 15px;
+    color: #999;
+}
+
+.search-box input {
+    width: 350px;
+    padding: 10px 15px 10px 40px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+}
+
+/* --- Export Button --- */
+.export-btn {
+    background-color: #28a745 !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.export-btn:hover {
+    background-color: #2ecc71 !important;
+}
+
+/* --- Data Table --- */
+.data-table-container {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    overflow: hidden;
+}
+
+.data-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table-container thead th {
+    background: #f8f9fa;
+    padding: 15px;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 2px solid #eee;
+}
+
+.data-table-container tbody td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.view-icon { 
+    color: #0d6efd; 
+    margin-right: 12px; 
+    cursor: pointer; }
+
+.delete-icon { 
+    color: #dc3545; 
+    cursor: pointer; }
+
+/* =====================================================
+   SIDEBAR TEXT & ICON VISIBILITY FIX
+===================================================== */
+
+/* Main menu links */
+.menu li a {
+    color: #334155 !important;   /* dark slate */
+    font-weight: 600;
+    opacity: 1 !important;
+}
+
+/* Icons inside menu */
+.menu li a i {
+    color: #64748b !important;
+    opacity: 1 !important;
+}
+
+/* Hover state */
+.menu li a:hover {
+    background: #f8faff;
+    color: #2563eb !important;
+}
+
+.menu li a:hover i {
+    color: #2563eb !important;
+}
+
+/* Active menu */
+.menu li.active > a {
+    background: #e0ecff !important;
+    color: #2563eb !important;
+    border-right: 4px solid #2563eb;
+}
+
+.menu li.active > a i {
+    color: #2563eb !important;
+}
+
+/* Submenu links */
+.submenu li a {
+    color: #475569 !important;
+    opacity: 1 !important;
+}
+
+.submenu li a:hover {
+    background: #f1f5ff !important;
+    color: #2563eb !important;
+}
+
+/* =======================================
+   USER MANAGEMENT TABS
+======================================= */
+
+.user-management-tabs {
+    display: flex;
+    align-items: center;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-bottom: none;
+
+    border-radius: 18px 18px 0 0;
+
+    overflow: hidden;
+
+    margin-top: 20px;
+}
+
+.user-tab {
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 18px 24px;
+
+    text-decoration: none;
+
+    color: #475569 !important;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    background: #ffffff;
+
+    border-bottom: 3px solid transparent;
+
+    transition: all 0.25s ease;
+}
+
+.user-tab:hover {
+    background: #f8fbff;
+    color: #2563eb !important;
+}
+
+.user-tab.active {
+    background: #f8fbff;
+
+    color: #2563eb !important;
+
+    border-bottom: 3px solid #2563eb;
+
+    font-weight: 700;
+}
+
+.user-tab i {
+    font-size: 15px;
+}
+
+.tab-count {
+    margin-left: auto;
+
+    min-width: 24px;
+    height: 24px;
+
+    border-radius: 999px;
+
+    background: #e2e8f0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    color: #334155;
+}
+
+.user-tab.active .tab-count {
+    background: #2563eb;
+    color: white;
+}
+
+/* CONNECT TAB WITH TABLE */
+.page-header,
+.control-bar {
+    background: #ffffff;
+
+    padding-left: 24px;
+    padding-right: 24px;
+
+    border-left: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+}
+
+.control-bar {
+    margin-bottom: 0;
+    padding-bottom: 20px;
+}
+
+.data-table-container {
+    border-radius: 0 0 18px 18px !important;
+
+    border-top: none !important;
+}

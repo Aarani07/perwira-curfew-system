@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <!-- ================= TOP TASKBAR ================= -->
+  <header class="navbar">
+    <div class="nav-logos">
+      <img src="{{ url_for('static', filename='images/about/uthm_logo.png') }}" alt="UTHM Logo">
+      <img src="{{ url_for('static', filename='images/about/kklk_logo.png') }}" alt="KKLK Logo">
+    </div>
+
+    <nav class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="{{ url_for('login') }}" class="nav-btn">Login</a>
+    </nav>
+  </header>
+
+  <!-- ================= SEGMENT 1 : HOME ================= -->
+  <section id="home" class="hero">
+    <div class="overlay">
+      <div class="content">
+        <h1 class="title">Perwira Residential Curfew Detection System</h1>
+        <p class="tagline">Smart, Secure & Automated Curfew Monitoring for Student Residential Safety</p>
+
+        <div class="running-text">
+          <span>
+            Secure, Smart & Automated Curfew Monitoring —
+            UTHM Perwira Residential College
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SEGMENT 2 : ABOUT THE SYSTEM ================= -->
+  <section id="about" class="about-section">
+    <div class="about-container">
+
+      <h2>About the System</h2>
+
+      <p class="about-description">
+        The <strong>Perwira Residential Curfew Detection System</strong> is a secure,
+        web-based application developed to automate the monitoring of student
+        late check-ins at UTHM Perwira Residential College using facial recognition
+        technology and role-based access control.
+      </p>
+
+      <div class="about-cards">
+
+        <div class="about-card">
+          <h3>🎯 System Objective</h3>
+          <p>
+            To enhance curfew enforcement accuracy and reduce manual monitoring
+            through an automated and reliable detection mechanism.
+          </p>
+        </div>
+
+        <div class="about-card">
+          <h3>👥 Target Users</h3>
+          <p>
+            Students, Security Officers, and System Administrators within
+            the UTHM Perwira Residential College.
+          </p>
+        </div>
+
+        <div class="about-card">
+          <h3>🔐 Security Features</h3>
+          <p>
+            Secure authentication, role-based access control, encrypted data storage,
+            and comprehensive audit logging.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SEGMENT 3 : PERWIRA INFO ================= -->
+  <section class="perwira-section">
+    <div class="perwira-container">
+
+      <!-- LEFT : VISION, MISSION, CHARTER -->
+      <div class="perwira-left">
+
+        <div class="info-card">
+          <h3>Visi</h3>
+          <p>
+            Beriltizam menyediakan kemudahan yang mencukupi dan berkualiti
+            selaras dengan keperluan universiti.
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h3>Misi</h3>
+          <p>
+            Kolej Kediaman Luar Kampus komited untuk menyemai budaya ilmu
+            ke arah pembangunan mahasiswa syumul selaras visi dan misi universiti.
+          </p>
+        </div>
+
+        <div class="info-card">
+          <h3>Piagam Pelanggan</h3>
+          <ul>
+            <li>Aduan kerosakan diselesaikan dalam tempoh 7 hari bekerja.</li>
+            <li>Pendaftaran kolej pelajar diselesaikan dalam masa kurang daripada 1 minit.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- RIGHT : IMAGE + MAP -->
+      <div class="perwira-right">
+
+        <img src="{{ url_for('static', filename='images/about/perwira_building.jpg') }}"
+             alt="Perwira Residential College"
+             class="perwira-image">
+
+        <div class="map-container">
+          <iframe
+            src="https://maps.google.com/maps?q=Jalan%20Desasiswa,%20Parit%20Raja,%20Johor&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            loading="lazy">
+          </iframe>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <p>
+      © {{ year }} Universiti Tun Hussein Onn Malaysia (UTHM) |
+      Perwira Residential College
+    </p>
+  </footer>
+
+</body>
+</html>

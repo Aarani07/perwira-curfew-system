@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+    <!-- Base layout CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/camera.css') }}">
+    
+    <!-- Role / page specific CSS -->
+    {% block dashboard_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="dashboard-layout" id="dashboardLayout">
+
+    <!-- ================= MODERN HEADER ================= -->
+    <header class="modern-header">
+        
+        <!-- LEFT -->
+        <div class="header-left">
+
+            <!-- MOBILE MENU BUTTON -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- LOGO -->
+            <div class="header-logo">
+                <img src="{{ url_for('static', filename='images/about/uthm_logo.png') }}">
+            </div>
+
+            <!-- SYSTEM NAME -->
+            <div class="system-name">
+                Curfew Detection System
+            </div>
+
+        </div>
+
+        <!-- CENTER NAVIGATION -->
+        <nav class="header-nav" id="mobileNav">
+
+            {% set current = request.endpoint %}
+
+            {% if active_user.role == "admin" %}
+
+                <a href="{{ url_for('admin_dashboard') }}"
+                class="nav-link {% if current == 'admin_dashboard' %}active{% endif %}">
+                    Dashboard
+                </a>
+
+                <a href="{{ url_for('admin_list_students') }}"
+                class="nav-link {% if current in ['admin_list_students', 'admin_list_security', 'admin_list_admins'] %}active{% endif %}">
+                    User Management
+                </a>
+
+                <a href="{{ url_for('admin_violations') }}"
+                class="nav-link {% if current == 'admin_violations' %}active{% endif %}">
+                    Violation List
+                </a>
+
+                <a href="{{ url_for('admin_fines') }}"
+                class="nav-link {% if current == 'admin_fines' %}active{% endif %}">
+                    Penalty Payment
+                </a>
+
+                <a href="{{ url_for('admin_excuse_letter') }}"
+                class="nav-link {% if current == 'admin_excuse_letter' %}active{% endif %}">
+                    Excuse Letter Management
+                </a>
+
+                <a href="{{ url_for('admin_warning_letters') }}"
+                class="nav-link {% if current == 'admin_warning_letters' %}active{% endif %}">
+                    Warning Letter Management
+                </a>
+
+                <a href="{{ url_for('admin_reports_analytics') }}"
+                class="nav-link {% if current == 'admin_reports_analytics' %}active{% endif %}">
+                    Reports & Analytics
+                </a>
+
+        
+
+            {% elif active_user.role == "security" %}
+
+                <a href="{{ url_for('security_dashboard') }}"
+                class="nav-link {% if current == 'security_dashboard' %}active{% endif %}">
+                    Dashboard
+                </a>
+
+                <a href="{{ url_for('security_violations') }}"
+                class="nav-link {% if current == 'security_violations' %}active{% endif %}">
+                    Violation List
+                </a>
+
+                <a href="{{ url_for('security_fines') }}"
+                class="nav-link {% if current == 'security_fines' %}active{% endif %}">
+                    Penalty Payment
+                </a>
+
+                <a href="{{ url_for('security_excuse_letters') }}"
+                class="nav-link {% if current == 'security_excuse_letters' %}active{% endif %}">
+                    Excuse Letter Management
+                </a>
+
+            {% elif active_user.role == "student" %}
+
+                <a href="{{ url_for('student_dashboard') }}"
+                class="nav-link {% if current == 'student_dashboard' %}active{% endif %}">
+                    Dashboard
+                </a>
+
+                <a href="{{ url_for('student_violation_history') }}"
+                class="nav-link {% if current == 'student_violation_history' %}active{% endif %}">
+                    Violation History
+                </a>
+
+                <a href="{{ url_for('student_fines') }}"
+                class="nav-link {% if current == 'student_fines' %}active{% endif %}">
+                    Penalty Payment
+                </a>
+
+                <a href="{{ url_for('student_warning_letters') }}"
+                class="nav-link {% if current == 'student_warning_letters' %}active{% endif %}">
+                    Warning Letters
+                </a>
+
+                
+
+                <a href="{{ url_for('student_excuse_letter') }}"
+                class="nav-link {% if current == 'student_excuse_letter' %}active{% endif %}">
+                    Excuse Letter Submission
+                </a>
+
+            {% endif %}
+
+        </nav>
+
+        <!-- RIGHT -->
+        <div class="header-right">
+
+            <!-- STUDENT QR -->
+            {% if active_user.role == "student" %}
+            <a href="javascript:void(0)"
+            class="header-icon"
+            onclick="openCamera()"
+            title="Student QR Code">
+                <i class="fa-solid fa-qrcode"></i>
+            </a>
+            {% endif %}
+
+            <!-- SECURITY CAMERA -->
+            {% if active_user.role == "security" %}
+            <a href="javascript:void(0)"
+            class="header-icon"
+            onclick="openCamera()"
+            title="Open Detection Camera">
+                <i class="fa-solid fa-camera"></i>
+            </a>
+            {% endif %}
+
+            <!-- NOTIFICATION -->
+            {% if active_user.role == "admin" %}
+                <a href="{{ url_for('admin_notifications') }}"
+                    class="top-icon-btn notification-btn {% if request.endpoint == 'admin_notifications' %}active-icon{% endif %}">
+
+            {% elif active_user.role == "security" %}
+                <a href="{{ url_for('security_notifications') }}"
+                    class="top-icon-btn notification-btn {% if request.endpoint == 'security_notifications' %}active-icon{% endif %}">
+
+            {% elif active_user.role == "student" %}
+                <a href="{{ url_for('student_notifications') }}"
+                    class="top-icon-btn notification-btn {% if request.endpoint == 'student_notifications' %}active-icon{% endif %}">
+            {% endif %}
+
+                <i class="fa-regular fa-bell"></i>
+
+                {% if unread_count > 0 %}
+                <span class="notification-badge">
+                    {{ unread_count }}
+                </span>
+                {% endif %}
+
+            </a>
+
+            <!-- PROFILE -->
+            {% if active_user.role == "admin" %}
+                <a href="{{ url_for('admin_profile') }}"
+                    class="top-icon-btn {% if request.endpoint == 'admin_profile' %}active-icon{% endif %}">
+            {% elif active_user.role == "security" %}
+                <a href="{{ url_for('security_profile') }}"
+                    class="top-icon-btn {% if request.endpoint == 'security_profile' %}active-icon{% endif %}">
+            {% elif active_user.role == "student" %}
+                <a href="{{ url_for('student_profile') }}"
+   class="top-icon-btn {% if request.endpoint == 'student_profile' %}active-icon{% endif %}">
+            {% endif %}
+                <i class="fa-regular fa-user"></i>
+            </a>
+
+            <!-- LOGOUT -->
+            <a href="{{ url_for('logout', role=active_user.role) }}"
+                class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+
+        </div>
+
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main class="main-content">
+
+        <!-- ================= PAGE CONTENT ================= -->
+        <div class="page-content">
+            {% block content %}{% endblock %}
+        </div>
+
+    </main>
+</div>
+
+<!-- Camera modal only for admin & security -->
+{% if active_user.role in ["admin", "security", "student"] %}
+    {% block camera_modal %}
+        {% include "camera_modal.html" %}
+    {% endblock %}
+{% endif %}
+
+{# ================= ROLE-BASED NOTIFICATION URL ================= #}
+{% set notification_url = None %}
+
+{% if active_user.role == "admin" %}
+    {% set notification_url = url_for('admin_notifications') %}
+{% elif active_user.role == "security" %}
+    {% set notification_url = url_for('security_notifications') %}
+{% elif active_user.role == "student" %}
+    {% set notification_url = url_for('student_notifications') %}
+{% endif %}
+
+<script>
+    window.userRole = "{{ active_user.role }}";
+</script>
+<script src="{{ url_for('static', filename='javascript/camera_logic.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+
+<script>
+document.querySelectorAll('.menu-dropdown-toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+        const parent = toggle.parentElement;
+
+        // Close other dropdowns
+        document.querySelectorAll('.menu-dropdown').forEach(item => {
+            if (item !== parent) item.classList.remove('active');
+        });
+
+        // Toggle current
+        parent.classList.toggle('active');
+    });
+});
+</script>
+<script>
+function toggleSidebar() {
+    document.getElementById("dashboardLayout").classList.toggle("sidebar-collapsed");
+}
+</script>
+<script>
+document.addEventListener("show.bs.modal", function (event) {
+    const modal = event.target;
+    if (modal.parentNode !== document.body) {
+        document.body.appendChild(modal);
+    }
+});
+</script>
+<script>
+    // Save current role for THIS TAB ONLY
+    sessionStorage.setItem("active_role", "{{ active_user.role }}");
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+
+    const role = sessionStorage.getItem("active_role");
+
+    if (!role) return;
+
+    await fetch("/switch-active-role", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            role: role
+        })
+    });
+
+});
+</script>
+
+<script>
+
+const mobileMenuBtn =
+    document.getElementById("mobileMenuBtn");
+
+const mobileNav =
+    document.getElementById("mobileNav");
+
+mobileMenuBtn.addEventListener("click", () => {
+
+    mobileNav.classList.toggle("mobile-active");
+
+});
+
+</script>
+<script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+</body>
+</html>
+</body>
+</html>

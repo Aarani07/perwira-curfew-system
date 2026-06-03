@@ -1,0 +1,106 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Security Dashboard | PRCDS
+{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/officer_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/camera.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<h5 class="fw-bold mb-4">Dashboard Overview</h5>
+
+<!-- ================= STATS ================= -->
+<div class="dashboard-stats-grid">
+    <div class="stat-card modern-stat-card">
+        <div>
+            <div class="stat-label">Total Inspections Today</div>
+            <div class="stat-description">
+                Total curfew inspections recorded today
+            </div>
+        </div>
+
+        <div class="stat-val">
+            {{ stats.total_inspections }}
+        </div>
+    </div>
+
+    <div class="stat-card modern-stat-card">
+        <div>
+            <div class="stat-label">Pending Excuse Letters</div>
+            <div class="stat-description">
+                Awaiting review and verification
+            </div>
+        </div>
+
+        <div class="stat-val">
+            {{ stats.pending_letters }}
+        </div>
+    </div>
+
+    <div class="stat-card modern-stat-card">
+        <div>
+            <div class="stat-label">Repeat Offenders</div>
+            <div class="stat-description">
+                Students with multiple violations
+            </div>
+        </div>
+
+        <div class="stat-val">
+            {{ stats.repeat_offenders }}
+        </div>
+    </div>
+</div>
+
+<!-- ================= RECENT VIOLATIONS ================= -->
+<div class="modern-table-wrapper">
+    <h6 class="fw-bold mb-3">Recent Violations</h6>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Student Name</th>
+                    <th>Matric No</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in violations %}
+                <tr>
+                    <td>{{ v.student_name }}</td>
+                    <td>{{ v.matric_no }}</td>
+                    <td>{{ v.violation_date }}</td>
+                    <td>{{ v.violation_time }}</td>
+                    <td>
+                        <span class="badge
+                            {% if v.status == 'Pending' %} bg-warning text-dark
+                            {% elif v.status == 'Approved' %} bg-success
+                            {% else %} bg-danger {% endif %}">
+                            {{ v.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        No recent violations found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/camera_logic.js') }}"></script>
+{% endblock %}

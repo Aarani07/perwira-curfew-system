@@ -1,0 +1,322 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+List of Security Officers | PRCDS
+{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="user-management-tabs">
+
+    <a href="{{ url_for('admin_list_students') }}"
+       class="user-tab">
+
+        <i class="fa-solid fa-user-graduate"></i>
+
+        <span>List of Students</span>
+
+        <div class="tab-count">
+            {{ students|length }}
+        </div>
+
+    </a>
+
+    <a href="{{ url_for('admin_list_security') }}"
+       class="user-tab active">
+
+        <i class="fa-solid fa-shield-halved"></i>
+
+        <span>List of Security Officers</span>
+
+        <div class="tab-count">
+            {{ security_count }}
+        </div>
+
+    </a>
+
+    <a href="{{ url_for('admin_list_admins') }}"
+       class="user-tab">
+
+        <i class="fa-solid fa-user-tie"></i>
+
+        <span>List of Administrators</span>
+
+        <div class="tab-count">
+            {{ admin_count }}
+        </div>
+
+    </a>
+
+</div>
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">List of Security Officers</h2>
+        <p class="page-subtitle">Manage security officer records</p>
+    </div>
+    <button class="add-new-btn"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#addOfficerModal">
+        <i class="fas fa-plus me-2"></i> Add New Security Officer
+    </button>
+</div>
+
+<div class="control-bar">
+
+    <div class="left-controls">
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text"
+                   id="securitySearch"
+                   placeholder="Search by name or staff ID...">
+        </div>
+
+    </div>
+
+    <a href="#"
+       class="export-btn fancy-export-btn">
+        <i class="fas fa-file-export"></i>
+        Export List
+    </a>
+
+</div>
+
+<div class="data-table-container">
+<table>
+<thead>
+<tr>
+    <th>Officer Name</th>
+    <th>Staff ID</th>
+    <th>Phone</th>
+    <th>Status</th>
+    <th>Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for officer in security_officers %}
+<tr>
+    <td>
+        <div class="student-info">
+            <img src="{{ url_for('static', filename='images/profiles/' ~ (officer.officer_official_pic if officer.officer_official_pic else 'default.png')) }}"
+                class="student-avatar">
+
+            <div>
+                <div class="student-name">
+                    {{ officer.officer_name }}
+                </div>
+
+                <div class="student-email">
+                    {{ officer.officer_email }}
+                </div>
+            </div>
+        </div>
+    </td>
+    <td>{{ officer.staff_id }}</td>
+    <td>{{ officer.officer_phone }}</td>
+    <td>
+        <span class="status-badge {{ 'active' if officer.status == 'Active' else 'inactive' }}">
+            {{ officer.status }}
+        </span>
+    </td>
+
+    <td>
+        <div class="action-buttons">
+
+            <a href="#"
+                class="view-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#viewOfficerModal"
+
+                data-name="{{ officer.officer_name }}"
+                data-staff="{{ officer.staff_id }}"
+                data-email="{{ officer.officer_email }}"
+                data-phone="{{ officer.officer_phone }}"
+                data-status="{{ officer.status }}"
+                data-pic="{{ url_for('static', filename='images/profiles/' ~ (officer.officer_official_pic if officer.officer_official_pic else 'default.png')) }}">
+
+                <i class="fa-solid fa-eye"></i>
+
+            </a>
+
+            <form method="POST"
+                action="{{ url_for('admin_delete_security', user_id=officer.user_id) }}"
+                onsubmit="return confirm('Delete this officer?')">
+
+                <button type="submit" class="delete-btn">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+
+            </form>
+
+        </div>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="7" class="text-center py-5 text-muted">
+        No security officers found.
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<!-- ================= ADD SECURITY OFFICER MODAL ================= -->
+<div class="modal fade" id="addOfficerModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <form method="POST"
+                  action="{{ url_for('admin_add_security') }}">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Security Officer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Officer Name *</label>
+                            <input type="text" name="officer_name" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Staff ID *</label>
+                            <input type="text" name="staff_id" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="officer_email" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone *</label>
+                            <input type="text" name="officer_phone" class="form-control" required>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-dark">
+                        <i class="fa-solid fa-user-plus"></i> Add Officer
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- ================= VIEW OFFICER MODAL ================= -->
+<div class="modal fade" id="viewOfficerModal" tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content modern-modal">
+
+            <div class="modal-body">
+
+                <button type="button"
+                        class="modern-close"
+                        data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <!-- PROFILE -->
+                <div class="modern-profile-section">
+
+                    <img id="viewOfficerPic"
+                         src=""
+                         class="modern-profile-pic">
+
+                    <h2 id="viewOfficerName"></h2>
+
+                    <p>Security Officer Information</p>
+
+                </div>
+
+                <!-- INFO GRID -->
+                <div class="modern-info-grid">
+
+                    <div class="modern-info-card">
+                        <label>Staff ID</label>
+                        <h5 id="viewOfficerStaff"></h5>
+                    </div>
+
+                    <div class="modern-info-card">
+                        <label>Status</label>
+                        <h5 id="viewOfficerStatus"></h5>
+                    </div>
+
+                    <div class="modern-info-card">
+                        <label>Email Address</label>
+                        <h5 id="viewOfficerEmail"></h5>
+                    </div>
+
+                    <div class="modern-info-card">
+                        <label>Phone Number</label>
+                        <h5 id="viewOfficerPhone"></h5>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('securitySearch').addEventListener('keyup', function () {
+    let value = this.value.toLowerCase();
+
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(value) ? '' : 'none';
+    });
+});
+</script>
+<script>
+document.querySelectorAll('.view-btn').forEach(button => {
+
+    button.addEventListener('click', function () {
+
+        document.getElementById('viewOfficerName').innerText =
+            this.dataset.name;
+
+        document.getElementById('viewOfficerStaff').innerText =
+            this.dataset.staff;
+
+        document.getElementById('viewOfficerEmail').innerText =
+            this.dataset.email;
+
+        document.getElementById('viewOfficerPhone').innerText =
+            this.dataset.phone;
+
+        document.getElementById('viewOfficerStatus').innerText =
+            this.dataset.status;
+
+        document.getElementById('viewOfficerPic').src =
+            this.dataset.pic;
+
+    });
+
+});
+</script>
+{% endblock %}

@@ -1,0 +1,707 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+
+<div class="reports-page">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        
+        <div>
+            <h2 class="fw-bold mb-1">Reports & Analytics</h2>
+            <p class="text-muted mb-0">
+                Comprehensive violation analytics and statistical reports
+            </p>
+        </div>
+
+    </div>
+
+    <!-- FILTER SECTION -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+
+            <form method="GET">
+
+                <div class="row g-3 align-items-center">
+
+                    <!-- DAYS FILTER -->
+                    <div class="col-md-3">
+                        <select class="form-select" name="days">
+
+                            <option value="7">Last 7 Days</option>
+
+                            <option value="30" selected>
+                                Last 30 Days
+                            </option>
+
+                            <option value="60">Last 60 Days</option>
+
+                            <option value="90">Last 90 Days</option>
+
+                        </select>
+                    </div>
+
+                    <!-- BLOCK FILTER -->
+                    <div class="col-md-3">
+                        <select class="form-select" name="block">
+
+                            <option value="all">
+                                All Blocks
+                            </option>
+
+                            <option value="A">Block A</option>
+                            <option value="B">Block B</option>
+                            <option value="C">Block C</option>
+                            <option value="D">Block D</option>
+
+                        </select>
+                    </div>
+
+                    <!-- REPORT TYPE -->
+                    <div class="col-md-3">
+                        <select class="form-select" name="report_type">
+
+                            <option value="overview">
+                                Overview Report
+                            </option>
+
+                            <option value="detailed">
+                                Detailed Analysis
+                            </option>
+
+                            <option value="violations">
+                                Violations Only
+                            </option>
+
+                            <option value="students">
+                                Student Performance
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <!-- APPLY FILTER -->
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100">
+                            Apply Filters
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-4 mb-4 align-items-stretch">
+
+        <!-- TOTAL VIOLATIONS -->
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm h-100 w-100">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <p class="text-muted mb-2">
+                                Total Violations
+                            </p>
+
+                            <h2 class="fw-bold mb-1">
+                                {{ total_violations or 0 }}
+                            </h2>
+
+                            <small class="text-success">
+                                Current recorded violations
+                            </small>
+
+                        </div>
+
+                        <div class="summary-icon text-danger">
+
+                            <i class="fas fa-triangle-exclamation"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- EXCUSED VIOLATIONS -->
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm h-100 w-100">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <p class="text-muted mb-2">
+                                Excused Violations
+                            </p>
+
+                            <h2 class="fw-bold mb-1">
+                                {{ excused_violations or 0 }}
+                            </h2>
+
+                            <small class="text-warning">
+                                Approved by administration
+                            </small>
+
+                        </div>
+
+                        <div class="summary-icon text-warning">
+
+                            <i class="fas fa-file-circle-check"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- WARNING LETTERS -->
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm h-100 w-100">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <p class="text-muted mb-2">
+                                Warning Letters
+                            </p>
+
+                            <h2 class="fw-bold mb-1">
+                                {{ warning_letters or 0 }}
+                            </h2>
+
+                            <small class="text-primary">
+                                Official warning notices issued
+                            </small>
+
+                        </div>
+
+                        <div class="summary-icon text-primary">
+
+                            <i class="fas fa-envelope"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CHARTS -->
+    <div class="row g-4 mb-4">
+
+        <!-- MONTHLY VIOLATIONS -->
+        <div class="col-xl-7 col-lg-12">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-1">
+                        Monthly Violations Trend
+                    </h5>
+
+                    <p class="text-muted small mb-4">
+                        Breakdown of violation statistics
+                    </p>
+
+                    <div class="chart-wrapper monthly-chart-container">
+                        <canvas id="monthlyViolationsChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- WEEKDAY ANALYTICS -->
+        <div class="col-xl-5 col-lg-12">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-1">
+                        Weekday Comparison
+                    </h5>
+
+                    <p class="text-muted small mb-4">
+                        Violations by weekdays
+                    </p>
+
+                    <div class="chart-wrapper weekday-chart-container">
+                        <canvas id="weekdayChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TOP VIOLATORS -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body">
+
+            <!-- HEADER -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+
+                    <h5 class="fw-bold mb-1">
+                        Top Violators
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+                        Students with the most violations
+                    </p>
+
+                </div>
+
+                <a href="{{ url_for('generate_violators_pdf') }}"
+                    class="btn btn-primary btn-sm">
+
+                        <i class="fas fa-download me-2"></i>
+
+                        Generate Full List
+
+                </a>
+
+            </div>
+
+            <!-- TABLE -->
+            <div class="table-responsive">
+
+                <table class="table analytics-table text-center">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Rank</th>
+                            <th>Student Name</th>
+                            <th>Matric Number</th>
+                            <th>Block</th>
+                            <th>Total Violations</th>
+                            <th>Excused Violations</th>
+                            <th>Warning Letters</th>
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for student in top_violators %}
+
+                        <tr>
+
+                            <td>
+                                {{ loop.index }}
+                            </td>
+
+                            <td>
+                                {{ student.student_name }}
+                            </td>
+
+                            <td>
+                                {{ student.matric_no }}
+                            </td>
+
+                            <td>
+                                {{ student.block }}
+                            </td>
+
+                            <td class="fw-bold">
+                                {{ student.total_violations }}
+                            </td>
+
+                            <td>
+                                {{ student.excused_count }}
+                            </td>
+
+                            <td>
+                                {{ student.warning_letter_count }}
+                            </td>
+
+                            <td>
+
+                                {% if student.warning_letter_count >= 2 %}
+
+                                    <span class="badge bg-danger">
+                                        High Risk
+                                    </span>
+
+                                {% elif student.total_violations >= 3 %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        Moderate Risk
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-success">
+                                        Low Risk
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const months = JSON.parse('{{ months | tojson | safe }}');
+
+const monthlyTotals = JSON.parse(
+    '{{ monthly_totals | tojson | safe }}'
+);
+
+const monthlyExcused = JSON.parse(
+    '{{ monthly_excused | tojson | safe }}'
+);
+
+const monthlyUnexcused = JSON.parse(
+    '{{ monthly_unexcused | tojson | safe }}'
+);
+
+const monthlyWarningLetters = JSON.parse(
+    '{{ monthly_warning_letters | tojson | safe }}'
+);
+
+const weekdayLabels = JSON.parse(
+    '{{ weekday_labels | tojson | safe }}'
+);
+
+const weekdayTotals = JSON.parse(
+    '{{ weekday_totals | tojson | safe }}'
+);
+
+/* =========================================
+   MONTHLY CHART
+========================================= */
+
+const monthlyCtx = document
+    .getElementById('monthlyViolationsChart');
+
+new Chart(monthlyCtx, {
+
+    type: 'bar',
+    data: {
+
+        labels: months,
+        datasets: [
+            {
+                label: 'Total Violations',
+                data: monthlyTotals,
+                backgroundColor: '#ef4444',
+                borderRadius: 8
+            },
+
+            {
+                label: 'Excused Violations',
+                data: monthlyExcused,
+                backgroundColor: '#10b981',
+                borderRadius: 8
+            },
+
+            {
+                label: 'Unexcused Violations',
+                data: monthlyUnexcused,
+                backgroundColor: '#f59e0b',
+                borderRadius: 8
+            },
+
+            {
+                label: 'Warning Letters',
+                data: monthlyWarningLetters,
+                backgroundColor: '#3b82f6',
+                borderRadius: 8
+            }
+        ]
+    },
+
+    options: {
+
+        responsive: true,
+        maintainAspectRatio: false,
+
+        plugins: {
+            legend: {
+                position: 'top',
+
+                labels: {
+                    boxWidth: 14,
+                    font: {
+                        size: 11
+                    }
+                }
+            }
+        },
+
+        layout: {
+            padding: {
+                top: 10,
+                bottom: 10
+            }
+        },
+
+        scales: {
+
+            y: {
+                beginAtZero: true,
+                suggestedMax: 5,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+
+}
+
+);
+
+/* =========================================
+   WEEKDAY CHART
+========================================= */
+
+const weekdayCtx = document
+    .getElementById('weekdayChart');
+
+new Chart(weekdayCtx, {
+
+    type: 'line',
+
+    data: {
+
+        labels: weekdayLabels,
+
+        datasets: [{
+
+            label: 'Violations',
+
+            data: weekdayTotals,
+
+            borderColor: '#3b82f6',
+
+            backgroundColor: 'rgba(59,130,246,0.15)',
+
+            borderWidth: 4,
+
+            tension: 0.45,
+
+            fill: true,
+
+            pointRadius: 6,
+
+            pointHoverRadius: 8,
+
+            pointBackgroundColor: '#ffffff',
+
+            pointBorderColor: '#3b82f6',
+
+            pointBorderWidth: 3
+
+        }]
+    },
+
+    options: {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        elements: {
+
+            line: {
+                capBezierPoints: true
+            }
+
+        },
+
+        plugins: {
+
+            legend: {
+
+                display: true,
+
+                position: 'top',
+
+                labels: {
+
+                    usePointStyle: true,
+
+                    pointStyle: 'circle',
+
+                    padding: 20,
+
+                    font: {
+                        size: 13,
+                        weight: '600'
+                    }
+
+                }
+
+            }
+
+        },
+
+        layout: {
+
+            padding: {
+                top: 10,
+                right: 15,
+                bottom: 10,
+                left: 10
+            }
+
+        },
+
+        scales: {
+
+            x: {
+
+                grid: {
+                    display: false
+                },
+
+                ticks: {
+
+                    color: '#64748b',
+
+                    font: {
+                        size: 13
+                    }
+
+                }
+
+            },
+
+            y: {
+
+                beginAtZero: true,
+
+                max: 3,
+
+                ticks: {
+
+                    precision: 0,
+
+                    color: '#64748b',
+
+                    font: {
+                        size: 12
+                    }
+
+                },
+
+                grid: {
+
+                    color: 'rgba(148,163,184,0.15)'
+
+                }
+
+            }
+
+        }
+
+    }
+
+});
+
+</script>
+
+{% endblock %}
+<style>
+
+.monthly-chart-container {
+    position: relative;
+    height: 340px;
+    width: 100%;
+}
+
+.weekday-chart-container {
+    position: relative;
+    height: 340px;
+    width: 100%;
+}
+
+.chart-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* TABLET */
+@media (max-width: 1200px) {
+
+    .monthly-chart-container,
+    .weekday-chart-container {
+        height: 300px;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+    .monthly-chart-container,
+    .weekday-chart-container {
+        height: 260px;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+}
+
+</style>

@@ -1,0 +1,399 @@
+<!-- HEADER -->
+<div class="modal-header">
+  <h5 class="modal-title">
+    Warning Letter - {{ letter.warning_id }}
+    <br>
+    <small>
+      Status:
+      {% if letter.warning_letter_status == 'Draft' %}
+          <span class="status-badge status-draft">Draft</span>
+
+      {% elif letter.warning_letter_status == 'Verified' %}
+          <span class="status-badge status-ack">Verified</span>
+
+      {% elif letter.warning_letter_status == 'Sent to Student' %}
+          <span class="status-badge status-sent">Sent to Student</span>
+
+      {% elif letter.warning_letter_status == 'Confirmed' %}
+          <span class="status-badge status-ack">Confirmed</span>
+
+      {% else %}
+          <span class="status-badge status-other">{{ letter.warning_letter_status }}</span>
+
+      {% endif %}
+    </small>
+  </h5>
+
+  <!-- BUTTONS -->
+  <div class="d-flex align-items-center gap-2">
+
+    <a href="{{ url_for('download_warning_letter', warning_id=letter.warning_id) }}" 
+      class="d-flex align-items-center justify-content-center border rounded-circle"
+      style="width:40px; height:40px;"
+      title="Download PDF">
+
+        <i class="fas fa-download text-muted"></i>
+    </a>
+
+    {% if letter.warning_letter_status == 'Draft' %}
+    <button class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#signatureModal{{ letter.warning_id }}">
+        ✔ Sign Letter
+    </button>
+
+    {% elif letter.warning_letter_status == 'Verified' %}
+        <button class="btn btn-success" onclick="sendLetter('{{ letter.warning_id }}')">
+            📩 Send to Student
+        </button>
+
+    {% elif letter.warning_letter_status == 'Sent to Student' %}
+        <span class="text-muted">Waiting for student acknowledgement</span>
+
+    {% elif letter.warning_letter_status == 'Confirmed' %}
+        <span class="text-success fw-semibold">Completed</span>
+
+    {% endif %}
+
+    <button class="btn-close" data-bs-dismiss="modal"></button>
+
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="modal-body warning-letter-body">
+
+  <!-- LETTER CONTAINER -->
+  <div class="warning-letter-container">
+
+    <!-- HEADER -->
+    <div class="letter-header">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='images/about/uthm_logo.png') }}" alt="UTHM Logo">
+      </div>
+      <div class="header-text">
+        <strong>UNIVERSITI TUN HUSSEIN ONN MALAYSIA</strong><br>
+        Kolej Kediaman Luar Kampus (KKLK)<br>
+        86400 Parit Raja, Batu Pahat, Johor Darul Ta'zim, Malaysia<br>
+        Tel: +607-453 7000 | Email: kklk@uthm.edu.my
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- REF + DATE -->
+    <div class="letter-top">
+      <div>
+        <small>Our Ref:</small><br>
+        UTHM/KKLK/WL{{ letter.warning_id }}/2026
+      </div>
+      <div>
+        <small>Date:</small><br>
+        {{ letter.issued_at | format_date }}
+      </div>
+    </div>
+
+    <br>
+
+    <!-- STUDENT INFO -->
+    <div class="student-info">
+
+        <div class="student-details">
+            <strong>To: {{ letter.student_name }}</strong><br>
+            {{ letter.matric_no }}<br>
+            {{ letter.block_room if letter.block_room else '-' }}<br>
+            UTHM Residential College
+        </div>
+
+    </div>
+
+    <!-- TITLE -->
+    <p class="letter-title">
+      RE: OFFICIAL WARNING - VIOLATION OF RESIDENTIAL CURFEW POLICY
+    </p>
+
+    <!-- BODY -->
+    <p>Dear {{ letter.student_name }},</p>
+
+    <p>
+      This letter serves as an official written warning concerning your violation of the 
+      Universiti Tun Hussein Onn Malaysia (UTHM) Residential College curfew regulations.
+    </p>
+
+    <!-- VIOLATION BOX -->
+    <div class="violation-box">
+      <strong>VIOLATION DETAILS:</strong><br><br>
+
+      Date of Incident: {{ letter.violation_date.strftime('%d %B %Y') if letter.violation_date else '-' }}<br>
+      Time of Entry: {{ letter.violation_time if letter.violation_time else '-' }}<br>
+      Permitted Curfew Time: 11:00 PM<br>
+      Violation Type: Late Return to Residential Premises
+    </div>
+
+    <br>
+
+    <p>
+      The above violation has been documented through our automated system and verified by 
+      the security personnel on duty. This conduct constitutes a breach of the residential 
+      policies as outlined in the UTHM Student Residential Code of Conduct.
+    </p>
+
+    <!-- DISCIPLINARY BOX -->
+    <div class="discipline-box">
+      <strong>DISCIPLINARY CONSEQUENCES:</strong>
+      <ul>
+        <li>Formal disciplinary hearing</li>
+        <li>Monetary fines</li>
+        <li>Suspension of privileges</li>
+        <li>Notation on academic record</li>
+        <li>Referral to Student Affairs</li>
+      </ul>
+    </div>
+
+    <br>
+
+    <p>
+      You are required to submit a written explanation within <b>7 days</b> from the date 
+      of this letter.
+    </p>
+
+    <p>We appreciate your immediate attention to this matter.</p>
+
+    <p>Yours faithfully,</p>
+
+    <br><br>
+
+    <!-- SIGNATURE -->
+    <div class="signature">
+      {% if letter.admin_signature %}
+        <img src="{{ letter.admin_signature}}" style="width:300px; height:auto;"><br>
+        <strong>Admin</strong><br>
+        Warden<br>
+        Kolej Kediaman Luar Kampus (KKLK)
+      {% else %}
+        ___________________________<br>
+        [Authorized Signatory]
+      {% endif %}
+    </div>
+
+    <br>
+
+    <!-- ACK -->
+    <div class="ack-box">
+      <strong>ACKNOWLEDGEMENT OF RECEIPT</strong><br><br>
+
+      I, {{ letter.student_name }} ({{ letter.matric_no }}), hereby acknowledge that I have 
+      received and read this warning letter.
+
+      <br><br><br>
+
+      <div class="ack-sign">
+        <div>
+
+          {% if letter.student_signature %}
+              <img src="{{ letter.student_signature }}" style="width:200px;"><br>
+          {% else %}
+              ___________________________<br>
+          {% endif %}
+
+          <strong>Student Signature</strong><br>
+          Name: {{ letter.student_name }}<br>
+
+          {% if letter.acknowledged_at and letter.acknowledged_at != '0000-00-00 00:00:00' %}
+              Date: {{ letter.acknowledged_at | format_date }}
+          {% else %}
+              Date: ___________________________
+          {% endif %}
+
+        </div>
+
+      </div>
+    </div>
+
+    <br>
+
+    <p class="footer-note">
+      This is an official document generated by the UTHM Residential Curfew Detection System
+    </p>
+
+  </div>
+</div>
+
+<!-- SIGNATURE MODAL -->
+<div class="modal fade" id="signatureModal{{ letter.warning_id }}" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Admin Signature</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>Please sign below:</p>
+
+        <canvas id="signatureCanvas{{ letter.warning_id }}" 
+                style="border:1px solid #ccc; width:100%; height:300px;"></canvas>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="clearCanvas('{{ letter.warning_id }}')">Clear</button>
+        <button class="btn btn-primary" onclick="confirmSignature('{{ letter.warning_id }}')">
+          ✔ Confirm Signature
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+let canvases = {};
+
+function initCanvas(id) {
+
+    const canvas = document.getElementById(`signatureCanvas${id}`);
+    const ctx = canvas.getContext("2d");
+
+    // responsive size
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 300;
+
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+
+    let drawing = false;
+
+    // =========================================
+    // GET POSITION
+    // =========================================
+    function getPosition(e) {
+
+        const rect = canvas.getBoundingClientRect();
+
+        if (e.touches && e.touches.length > 0) {
+
+            return {
+                x: e.touches[0].clientX - rect.left,
+                y: e.touches[0].clientY - rect.top
+            };
+
+        }
+
+        return {
+            x: e.offsetX,
+            y: e.offsetY
+        };
+    }
+
+    // =========================================
+    // START DRAW
+    // =========================================
+    function startDrawing(e) {
+
+        drawing = true;
+
+        const pos = getPosition(e);
+
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+
+        e.preventDefault();
+    }
+
+    // =========================================
+    // DRAW
+    // =========================================
+    function draw(e) {
+
+        if (!drawing) return;
+
+        const pos = getPosition(e);
+
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+
+        e.preventDefault();
+    }
+
+    // =========================================
+    // STOP DRAW
+    // =========================================
+    function stopDrawing() {
+
+        drawing = false;
+        ctx.beginPath();
+    }
+
+    // =========================================
+    // MOUSE EVENTS
+    // =========================================
+    canvas.addEventListener("mousedown", startDrawing);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", stopDrawing);
+    canvas.addEventListener("mouseleave", stopDrawing);
+
+    // =========================================
+    // TOUCH EVENTS (PHONE)
+    // =========================================
+    canvas.addEventListener("touchstart", startDrawing);
+    canvas.addEventListener("touchmove", draw);
+    canvas.addEventListener("touchend", stopDrawing);
+
+    canvases[id] = canvas;
+}
+
+// init when modal opens
+document.addEventListener("shown.bs.modal", function (event) {
+    const modal = event.target;
+    if (modal.id.startsWith("signatureModal")) {
+        const id = modal.id.replace("signatureModal", "");
+        initCanvas(id);
+    }
+});
+</script>
+<script>
+function clearCanvas(id) {
+    const canvas = canvases[id];
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+</script>
+<script>
+function confirmSignature(id) {
+    const canvas = canvases[id];
+
+    if (!canvas) {
+        alert("Canvas not found!");
+        return;
+    }
+
+    const imageData = canvas.toDataURL("image/png");
+
+    fetch(`/admin/sign-letter/${id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            signature: imageData
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);  // 👈 ADD THIS
+        if (data.success) {
+            alert("Signed successfully!");
+            location.reload();
+        } else {
+            alert("Failed to save signature");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error submitting signature");
+    });
+}
+</script>

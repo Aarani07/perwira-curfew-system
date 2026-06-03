@@ -1,0 +1,178 @@
+{% if active_user.role in ["admin", "security", "student"] %}
+
+<div id="globalCameraModal" class="modal-overlay" style="display: none;">
+    <div class="camera-modal {% if active_user.role == 'student' %}student-qr-modal{% endif %}">
+
+        <div class="camera-header">
+            <h6>
+                {% if active_user.role == "student" %}
+                    <i class="fa-solid fa-qrcode"></i> Student QR Code
+                {% else %}
+                    <i class="fa-solid fa-camera"></i> Camera Access – Face & QR Detection
+                {% endif %}
+            </h6>
+            <button type="button" class="btn-close" onclick="closeCamera()"></button>
+        </div>
+
+        {% if active_user.role == "student" %}
+        <div class="student-qr-content">
+            <div class="student-qr-icon">
+                <i class="fa-solid fa-qrcode"></i>
+            </div>
+
+            <h3 class="student-qr-title">Student QR Code</h3>
+            <p class="student-qr-subtitle">Scan to verify student information</p>
+
+            <div class="student-qr-frame">
+                <div class="student-qr-box">
+                    <img id="studentQrImage" alt="Student QR Code">
+                </div>
+            </div>
+
+            <div class="student-qr-timer-row">
+                <div class="student-qr-timer-left">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Regenerates in</span>
+                </div>
+                <div class="student-qr-timer-right" id="studentQrCountdown">--:--</div>
+            </div>
+
+            <div class="student-qr-progress">
+                <div class="student-qr-progress-bar" id="studentQrProgressBar"></div>
+            </div>
+
+            <p class="student-qr-note">QR code refreshes every 3 minutes for security</p>
+
+            <div class="student-qr-info-card">
+                <div class="student-qr-info-row">
+                    <span class="label">Student ID:</span>
+                    <span class="value" id="studentQrMatric">-</span>
+                </div>
+                <div class="student-qr-info-row">
+                    <span class="label">Name:</span>
+                    <span class="value" id="studentQrName">-</span>
+                </div>
+                <div class="student-qr-info-row">
+                    <span class="label">Hostel:</span>
+                    <span class="value" id="studentQrBlock">-</span>
+                </div>
+                <div class="student-qr-info-row">
+                    <span class="label">Room:</span>
+                    <span class="value" id="studentQrRoom">-</span>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="camera-body">
+            <div>
+                <div class="mb-2 d-flex flex-wrap gap-2">
+                    <button id="faceBtn"
+                            type="button"
+                            class="btn btn-primary btn-sm"
+                            onclick="setMode('face', this)">
+                        Face Detection
+                    </button>
+
+                    <button id="qrBtn"
+                            type="button"
+                            class="btn btn-light btn-sm"
+                            onclick="setMode('qr', this)">
+                        QR Code
+                    </button>
+
+                    <button id="switchCameraBtn"
+                            type="button"
+                            class="btn btn-dark btn-sm"
+                            onclick="switchCamera()">
+                        <i class="fa-solid fa-rotate"></i> Turn Camera
+                    </button>
+                </div>
+
+                <div class="camera-box">
+                    <video id="webcam-feed" autoplay playsinline muted></video>
+                    <div class="face-guide" id="scanGuideText">
+                        Position face within frame
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="btn btn-primary w-100 mt-3"
+                        onclick="startDetection()">
+                    <i class="fa-solid fa-play"></i> Start Detection
+                </button>
+            </div>
+
+            <div class="result-box">
+                <div class="result-placeholder" id="resultPlaceholder">
+                    <i class="fa-solid fa-camera fa-2x mb-3"></i>
+                    <p>
+                        No detection results yet.<br>
+                        Start scanning to detect faces or QR codes.
+                    </p>
+                </div>
+
+                <div class="result-success d-none" id="resultSuccess">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-circle-check text-success fa-lg me-2"></i>
+                        <strong>Detection Successful</strong>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <img id="resImg"
+                             class="profile-img mb-2"
+                             alt="Detected student"
+                             style="display: none;">
+                    </div>
+
+                    <p><strong>Student Name</strong><br><span id="resName">-</span></p>
+                    <p><strong>Matric Number</strong><br><span id="resMatric">-</span></p>
+
+                    <div class="row">
+                        <div class="col">
+                            <strong>Block</strong><br><span id="resBlock">-</span>
+                        </div>
+                        <div class="col">
+                            <strong>Room</strong><br><span id="resRoom">-</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <strong>Status</strong><br><span id="resStatus">-</span>
+                    </div>
+
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="button"
+                                class="btn btn-success w-100"
+                                onclick="startDetection()">
+                            Scan Again
+                        </button>
+                        <button type="button"
+                                class="btn btn-secondary w-100"
+                                onclick="resetResult()">
+                            Clear Results
+                        </button>
+                    </div>
+                </div>
+
+                <div class="result-failed d-none" id="resultFailed">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fa-solid fa-circle-xmark text-danger fa-lg me-2"></i>
+                        <strong id="failText">Detection Failed</strong>
+                    </div>
+                    <p id="failDesc">Please try again.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="camera-footer">
+            <span class="badge bg-primary">
+                Mode: <span id="modeText">Face Recognition</span>
+            </span>
+            <span class="badge bg-success">Camera Status: Ready</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}

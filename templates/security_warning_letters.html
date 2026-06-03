@@ -1,0 +1,124 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}View Warning Letters | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">Warning Letters</h3>
+        <p class="text-muted mb-0">
+            View issued warning letters for monitoring purposes
+        </p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Letters</p>
+                    <h3 class="fw-bold mb-0">{{ total_letters if total_letters is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Verified</p>
+                    <h3 class="fw-bold mb-0">{{ acknowledged_letters if acknowledged_letters is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Draft</p>
+                    <h3 class="fw-bold mb-0">{{ pending_letters if pending_letters is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-1">Issued Warning Letters</h5>
+            <p class="text-muted mb-0">Security officers can view the warning letter status only</p>
+        </div>
+
+        <div class="card-body px-4 pb-4">
+            {% if warning_letters and warning_letters|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Matric No</th>
+                            <th>Letter No.</th>
+                            <th>Issued Date</th>
+                            <th>Reason</th>
+                            <th>Violation Count</th>
+                            <th>Status</th>
+                            <th>Letter File</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for w in warning_letters %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ w.student_name }}</td>
+                            <td>{{ w.matric_no }}</td>
+                            <td>{{ w.letter_no if w.letter_no else ('WL-' ~ w.warning_id) }}</td>
+                            <td>{{ w.issued_at if w.issued_at else '-' }}</td>
+                            <td style="max-width: 260px;">
+                                <div class="text-truncate" title="{{ w.reason }}">
+                                    {{ w.reason if w.reason else '-' }}
+                                </div>
+                            </td>
+                            <td>{{ w.violation_count if w.violation_count is not none else '-' }}</td>
+                            <td>
+                                {% if w.status == 'Verified' %}
+                                    <span class="badge bg-success px-3 py-2 rounded-pill">Verified</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                        {{ w.status if w.status else 'Draft' }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if w.file_path %}
+                                    <a href="{{ url_for('static', filename=w.file_path) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
+                                        <i class="fa-solid fa-eye me-1"></i>View
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">No file</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3 fs-1 text-muted">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <h5 class="fw-bold">No warning letters found</h5>
+                <p class="text-muted">There are currently no warning letters available.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

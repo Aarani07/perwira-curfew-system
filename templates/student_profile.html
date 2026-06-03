@@ -1,0 +1,645 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}My Profile | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_profile.css') }}">
+{% endblock %}
+
+{% block page_header %}
+<div class="profile-page-header">
+    <div>
+        <h3 class="mb-1">Profile</h3>
+        <p class="text-muted mb-4">
+            Manage your personal information, password, and face recognition data
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+
+        <div class="flash-message-wrapper">
+
+            {% for category, message in messages %}
+
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+
+                    {{ message }}
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                    </button>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+{% endwith %}
+
+<div class="student-profile-page">
+
+    <!-- TABS -->
+    <ul class="nav profile-tabs mb-4">
+        <li class="nav-item">
+            <button class="nav-link active" onclick="showSection('info', this)" type="button">
+                <i class="fa-solid fa-user me-2"></i>Profile Information
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" onclick="showSection('password', this)" type="button">
+                <i class="fa-solid fa-lock me-2"></i>Update Password
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" onclick="showSection('face', this)" type="button">
+                <i class="fa-solid fa-camera me-2"></i>Face Recognition
+            </button>
+        </li>
+    </ul>
+
+    <!-- PROFILE INFO -->
+    <div id="profile-info">
+        <div class="card mb-4 profile-section-card">
+            <div class="profile-hero-container">
+
+                <!-- LEFT -->
+                <div class="profile-left">
+
+                    <div class="profile-avatar-wrapper">
+
+                        {% if student.student_official_pic %}
+
+                            <img src="{{ url_for(
+                                'static',
+                                filename='images/profiles/' ~ student.student_official_pic
+                            ) }}"
+                            class="student-profile-pic">
+
+                        {% else %}
+
+                            <div class="profile-avatar-placeholder">
+
+                                {{ student.name[:1] }}
+                                {% if ' ' in student.name %}
+                                    {{ student.name.split(' ')[1][:1] }}
+                                {% endif %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                    <form method="POST"
+                        action="{{ url_for('student_profile') }}"
+                        enctype="multipart/form-data"
+                        class="profile-upload-form">
+
+                        <input type="hidden"
+                            name="action"
+                            value="upload_profile_pic">
+
+                        <label class="upload-profile-btn">
+
+                            <i class="fa-solid fa-camera"></i>
+                            Upload Photo
+
+                            <input type="file"
+                                name="profile_pic"
+                                accept="image/*"
+                                onchange="this.form.submit()"
+                                hidden>
+
+                        </label>
+
+                    </form>
+
+                    <p class="upload-guideline">
+                        Upload an official passport-style photo with
+                        white background, clear face visibility,
+                        and no selfies, filters, or group photos.
+                    </p>
+
+                    <div class="profile-status-badge">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Student Account
+                    </div>
+
+                </div>
+
+                <!-- RIGHT -->
+                <div class="profile-right">
+
+                    <div class="profile-header-row">
+
+                        <div>
+
+                            <h2 class="student-main-name">
+                                {{ student.name }}
+                            </h2>
+
+                            <div class="student-meta">
+
+                                <span>
+                                    <i class="fa-solid fa-id-card"></i>
+                                    {{ student.matric_no }}
+                                </span>
+
+                                <span>
+                                    <i class="fa-solid fa-building"></i>
+                                    {{ student.faculty }}
+                                </span>
+
+                                <span>
+                                    <i class="fa-solid fa-envelope"></i>
+                                    {{ student.email }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <button type="button"
+                                class="btn btn-primary"
+                                id="editInfoBtn"
+                                onclick="enableEditMode()">
+
+                            <i class="fa-solid fa-pen-to-square me-2"></i>
+                            Edit Information
+
+                        </button>
+
+                    </div>
+
+                    <div class="profile-quick-info">
+
+                        <div class="quick-info-card">
+                            <span>Block</span>
+                            <strong>{{ student.block }}</strong>
+                        </div>
+
+                        <div class="quick-info-card">
+                            <span>Room</span>
+                            <strong>{{ student.room }}</strong>
+                        </div>
+
+                        <div class="quick-info-card">
+                            <span>Phone Number</span>
+                            <strong>{{ student.phone or "-" }}</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <form method="POST" action="{{ url_for('student_profile') }}" id="studentInfoForm" class="d-none">
+                <input type="hidden" name="action" value="update_info">
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Name</label>
+                        <input type="text" class="form-control editable-field" name="name"
+                            value="{{ student.name }}" disabled required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Matric No</label>
+                        <input type="text" class="form-control" value="{{ student.matric_no }}" disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Faculty</label>
+                        <input type="text" class="form-control editable-field" name="faculty"
+                            value="{{ student.faculty }}" disabled required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Block</label>
+                        <input type="text" class="form-control editable-field" name="block"
+                            value="{{ student.block }}" disabled required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Room</label>
+                        <input type="text" class="form-control editable-field" name="room"
+                            value="{{ student.room }}" disabled required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Phone Number</label>
+                        <input type="text" class="form-control editable-field" name="phone"
+                            value="{{ student.phone or '' }}" disabled>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" class="form-control editable-field" name="email"
+                            value="{{ student.email }}" disabled required>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-none" id="infoActionButtons">
+                    <button type="submit" class="btn btn-success me-2">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Save Changes
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="cancelEditMode()">
+                        <i class="fa-solid fa-xmark me-2"></i>Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PASSWORD -->
+    <div id="profile-password" class="d-none">
+        <div class="card profile-section-card">
+            <h5 class="fw-bold mb-3">Change Password</h5>
+
+            <form method="POST" action="{{ url_for('student_profile') }}">
+                <input type="hidden" name="action" value="change_password">
+
+                <div class="mb-3">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" name="current_password" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">New Password</label>
+                    <input type="password" name="new_password" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" name="confirm_password" class="form-control" required>
+                </div>
+
+                <button class="btn btn-dark">
+                    <i class="fa-solid fa-lock me-2"></i>Update Password
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FACE RECOGNITION -->
+    <div id="profile-face" class="d-none">
+        <div class="card profile-section-card">
+            <h5 class="fw-bold mb-3">Face Recognition Setup</h5>
+
+            <div class="alert alert-info">
+                Click <strong>Start Face Setup</strong> to open the live camera.
+                The system will guide you to capture several face samples from different angles.
+            </div>
+
+            <div class="mb-3">
+                <button type="button" class="btn btn-primary" onclick="openFaceCaptureModal()">
+                    <i class="fa-solid fa-camera me-2"></i>Start Face Setup
+                </button>
+            </div>
+
+            <p id="faceInstructionText" class="text-muted mb-0">
+                Camera not started yet.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- FACE CAPTURE MODAL -->
+<div class="modal fade" id="faceCaptureModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-centered face-capture-dialog">
+        <div class="modal-content border-0 shadow-lg face-capture-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Face Sample Capture</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="stopCameraPreview()"></button>
+            </div>
+
+            <div class="modal-body face-capture-modal-body">
+                <div class="row g-3 align-items-start">
+
+                    <!-- LEFT: CAMERA -->
+                    <div class="col-lg-7">
+                        <div class="alert alert-primary mb-3" id="modalFaceGuideText">
+                            Follow the on-screen instructions to capture your face from different angles.
+                        </div>
+
+                        <div class="face-video-wrapper mb-3">
+                            <video id="faceCaptureVideo" autoplay playsinline></video>
+                        </div>
+
+                        <div class="progress mb-0" style="height: 20px;">
+                            <div id="faceProgressBar" class="progress-bar" role="progressbar" style="width: 0%;">
+                                0 / 10
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: INSTRUCTIONS -->
+                    <div class="col-lg-5">
+                        <div class="card border-0 bg-light face-instruction-panel">
+                            <div class="card-body">
+                                <p class="mb-2 fw-semibold fs-4">Current Step</p>
+                                <p id="liveCaptureInstruction" class="mb-4 text-primary fw-bold fs-4">
+                                    Press "Start Capture" to begin.
+                                </p>
+
+                                <p class="mb-2 fw-semibold">Guidelines:</p>
+                                <ul class="mb-0 ps-3">
+                                    <li class="mb-2">Keep your full face visible inside the camera frame</li>
+                                    <li class="mb-2">Look at the camera clearly when instructed</li>
+                                    <li class="mb-2">Turn slowly when asked</li>
+                                    <li class="mb-2">Make sure lighting is bright and clear</li>
+                                    <li class="mb-2">Do not wear cap or mask during setup</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer face-capture-footer">
+                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal" onclick="stopCameraPreview()">
+                    Close
+                </button>
+                <button class="btn btn-primary" type="button" id="startCaptureBtn" onclick="startAutoCapture()">
+                    <i class="fa-solid fa-camera me-2"></i>Start Capture
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showSection(section, btn) {
+    document.getElementById('profile-info').classList.toggle('d-none', section !== 'info');
+    document.getElementById('profile-password').classList.toggle('d-none', section !== 'password');
+    document.getElementById('profile-face').classList.toggle('d-none', section !== 'face');
+
+    document.querySelectorAll('.profile-tabs .nav-link').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function enableEditMode() {
+
+    document.getElementById('studentInfoForm')
+        .classList.remove('d-none');
+
+    document.querySelectorAll('.editable-field')
+        .forEach(field => field.disabled = false);
+
+    document.getElementById('infoActionButtons')
+        .classList.remove('d-none');
+
+    document.getElementById('editInfoBtn')
+        .classList.add('d-none');
+}
+
+function cancelEditMode() {
+
+    document.querySelectorAll('.editable-field')
+        .forEach(field => field.disabled = true);
+
+    document.getElementById('studentInfoForm')
+        .classList.add('d-none');
+
+    document.getElementById('infoActionButtons')
+        .classList.add('d-none');
+
+    document.getElementById('editInfoBtn')
+        .classList.remove('d-none');
+}
+
+let studentFaceStream = null;
+let captureCount = 0;
+let maxCaptures = 10;
+let captureInterval = null;
+let faceCaptureModalInstance = null;
+
+const captureInstructions = [
+    "Look straight at the camera",
+    "Turn slightly left",
+    "Turn slightly right",
+    "Look slightly up",
+    "Look slightly down",
+    "Keep a neutral face",
+    "Smile slightly",
+    "Blink naturally",
+    "Look straight again",
+    "Hold still for final capture"
+];
+
+function resetFaceUI() {
+    captureCount = 0;
+    updateProgressBar();
+    document.getElementById("faceInstructionText").innerText = "Camera ready. Start capture when you are ready.";
+    document.getElementById("liveCaptureInstruction").innerText = 'Press "Start Capture" to begin.';
+    document.getElementById("modalFaceGuideText").innerText = "Follow the on-screen instructions to capture your face from different angles.";
+    document.getElementById("startCaptureBtn").disabled = false;
+}
+
+function openFaceCaptureModal() {
+    const modalElement = document.getElementById('faceCaptureModal');
+    faceCaptureModalInstance = new bootstrap.Modal(modalElement);
+    faceCaptureModalInstance.show();
+
+    resetFaceUI();
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            studentFaceStream = stream;
+            document.getElementById('faceCaptureVideo').srcObject = stream;
+            document.getElementById("faceInstructionText").innerText = "Camera opened successfully.";
+        })
+        .catch(err => {
+            document.getElementById("faceInstructionText").innerText = "Unable to access camera.";
+            alert("Unable to access camera: " + err.message);
+        });
+}
+
+function stopCameraPreview() {
+    if (captureInterval) {
+        clearInterval(captureInterval);
+        captureInterval = null;
+    }
+
+    if (studentFaceStream) {
+        studentFaceStream.getTracks().forEach(track => track.stop());
+        studentFaceStream = null;
+    }
+
+    const video = document.getElementById("faceCaptureVideo");
+    if (video) {
+        video.srcObject = null;
+    }
+
+    document.getElementById("startCaptureBtn").disabled = false;
+}
+
+function updateProgressBar() {
+    const percent = (captureCount / maxCaptures) * 100;
+    const bar = document.getElementById("faceProgressBar");
+    bar.style.width = percent + "%";
+    bar.innerText = `${captureCount} / ${maxCaptures}`;
+    bar.setAttribute("aria-valuenow", percent);
+}
+
+function captureFaceSample(expectedPose) {
+    return new Promise((resolve, reject) => {
+        const video = document.getElementById("faceCaptureVideo");
+
+        if (!video.videoWidth || !video.videoHeight) {
+            reject("Camera is not ready yet.");
+            return;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+
+        const imageData = canvas.toDataURL("image/jpeg");
+
+        fetch("/student/save-face-frame", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                image: imageData,
+                expected_pose: expectedPose
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.accepted) {
+                resolve(data);
+            } else {
+                reject(data.message || "Face sample not accepted");
+            }
+        })
+        .catch(err => reject(err));
+    });
+}
+
+function startAutoCapture() {
+    if (!studentFaceStream) {
+        alert("Please allow camera access first.");
+        return;
+    }
+
+    const steps = [
+        { text: "Look straight at the camera", pose: "front" },
+        { text: "Turn slightly left", pose: "left" },
+        { text: "Turn slightly right", pose: "right" },
+        { text: "Look slightly up", pose: "up" },
+        { text: "Look slightly down", pose: "down" },
+        { text: "Keep a neutral face", pose: "front" },
+        { text: "Smile slightly", pose: "front" },
+        { text: "Blink naturally", pose: "front" },
+        { text: "Look straight again", pose: "front" },
+        { text: "Hold still for final capture", pose: "front" }
+    ];
+
+    captureCount = 0;
+    updateProgressBar();
+    document.getElementById("startCaptureBtn").disabled = true;
+    document.getElementById("faceInstructionText").innerText = "Face capture in progress...";
+
+    if (captureInterval) {
+        clearInterval(captureInterval);
+    }
+
+    captureInterval = setInterval(async () => {
+        if (captureCount >= steps.length) {
+            clearInterval(captureInterval);
+            captureInterval = null;
+
+            document.getElementById("liveCaptureInstruction").innerText = "Finalizing face enrollment...";
+            document.getElementById("modalFaceGuideText").innerText = "Please wait while your face template is being created.";
+
+            fetch("/student/finalize-face-enrollment", {
+                method: "POST"
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("faceInstructionText").innerText = data.message || "Face setup completed successfully.";
+                    document.getElementById("liveCaptureInstruction").innerText = "Face setup completed successfully.";
+                    document.getElementById("modalFaceGuideText").innerText = "Your face samples and template were saved successfully.";
+
+                    setTimeout(() => {
+                        stopCameraPreview();
+                        bootstrap.Modal.getInstance(document.getElementById("faceCaptureModal"))?.hide();
+                    }, 1200);
+
+                    alert("Face setup completed successfully.");
+                } else {
+                    document.getElementById("faceInstructionText").innerText = data.message || "Failed to complete face setup.";
+                    document.getElementById("liveCaptureInstruction").innerText = "Face setup failed.";
+                    document.getElementById("modalFaceGuideText").innerText = data.message || "The system could not finalize your face enrollment.";
+                    document.getElementById("startCaptureBtn").disabled = false;
+                    alert(data.message || "Failed to complete face setup.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("faceInstructionText").innerText = "Failed to finalize face setup.";
+                document.getElementById("liveCaptureInstruction").innerText = "Face setup failed.";
+                document.getElementById("modalFaceGuideText").innerText = "An error occurred while finalizing face enrollment.";
+                document.getElementById("startCaptureBtn").disabled = false;
+                alert("Failed to finalize face setup.");
+            });
+
+            return;
+        }
+
+        const currentStep = steps[captureCount];
+        document.getElementById("liveCaptureInstruction").innerText = currentStep.text;
+        document.getElementById("faceInstructionText").innerText = `Waiting for valid sample ${captureCount + 1} of ${steps.length}`;
+        document.getElementById("modalFaceGuideText").innerText = currentStep.text;
+
+        try {
+            const result = await captureFaceSample(currentStep.pose);
+            captureCount++;
+            updateProgressBar();
+            document.getElementById("modalFaceGuideText").innerText = result.message || `Sample ${captureCount} accepted.`;
+        } catch (err) {
+            console.log("Capture rejected:", err);
+            document.getElementById("modalFaceGuideText").innerText =
+                err ? String(err) : "Face not accepted yet. Please follow the instruction carefully.";
+        }
+    }, 1500);
+}
+
+document.getElementById('faceCaptureModal').addEventListener('shown.bs.modal', function () {
+    document.body.style.overflow = 'hidden';
+});
+
+document.getElementById('faceCaptureModal').addEventListener('hidden.bs.modal', function () {
+    stopCameraPreview();
+    document.body.style.overflow = '';
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const modalElement = document.getElementById("faceCaptureModal");
+    if (modalElement && modalElement.parentNode !== document.body) {
+        document.body.appendChild(modalElement);
+    }
+});
+</script>
+{% endblock %}

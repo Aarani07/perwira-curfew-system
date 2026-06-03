@@ -1,0 +1,259 @@
+
+* {
+    font-family: 'Inter';
+}
+
+html, body {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+body {
+    margin: 0;
+    font-family: "Inter", "Segoe UI", sans-serif;
+    background: #f4f7fe;
+    color: #333;
+}
+
+/* =========================
+   PAGE HEADER (MATCH DASHBOARD)
+========================= */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: #ffffff;
+    padding: 22px 32px;
+    margin-bottom: 30px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.page-header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.page-greeting {
+    font-size: 14px;
+    color: #475569;
+}
+
+.page-greeting strong {
+    color: #0f172a;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 6px 0 0;
+    color: #0f172a;
+}
+
+
+/* =======================================
+   MENU
+======================================= */
+.menu {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.menu li a, .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 25px;
+    font-size: 14px;
+    color: #64748b;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.menu li.active {
+    background-color: #f0f4ff;
+    border-right: 4px solid #3b71ca;
+}
+
+.menu li.active a {
+    color: #3b71ca;
+    font-weight: 600;
+}
+
+.menu li a:hover, .nav-link:hover {
+    background: #f8faff;
+    color: #4361ee;
+}
+
+.collapse-menu {
+    list-style: none;
+    padding: 5px 0;
+    background: #fcfdfe;
+}
+
+.collapse-menu li a {
+    padding-left: 55px;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+/* =======================================
+   MAIN CONTENT
+======================================= */
+.main-content {
+    margin-left: 10px;
+    padding: 100px;
+}
+
+/* =======================================
+   BUTTONS
+======================================= */
+.btn-camera {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+
+    border: none !important;
+    outline: none !important;
+
+    border-radius: 10px;
+    padding: 10px 22px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    box-shadow: 0 6px 14px rgba(13, 110, 253, 0.25);
+    cursor: pointer;
+}
+
+.btn-camera:hover {
+    background-color: #0b5ed7 !important;
+    box-shadow: 0 8px 18px rgba(13, 110, 253, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-camera:focus,
+.btn-camera:active {
+    outline: none !important;
+    box-shadow: 0 6px 14px rgba(13, 110, 253, 0.35) !important;
+}
+
+.camera-upload-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: #0d6efd;
+    color: #fff;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.camera-upload-btn:hover {
+    background: #0b5ed7;
+}
+
+
+/* DASHBOARD-STYLE LOGOUT (TEXT LINK, NOT BUTTON) */
+.logout-link {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.logout-link:hover {
+    text-decoration: underline;
+}
+
+/* KEEP EDIT BUTTON AS IS */
+.btn-edit-black {
+    background-color: #1e293b;
+    color: white;
+    font-weight: 700;
+    padding: 12px 24px;
+    border-radius: 10px;
+}
+
+/* =======================================
+   PROFILE CARD
+======================================= */
+.profile-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.03);
+}
+
+/* =========================
+   FIXED PROFILE PICTURE
+========================= */
+
+.profile-img-wrapper {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: auto;
+}
+
+.profile-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #e5e7eb;
+}
+
+/* Camera button */
+.upload-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    border-radius: 50%;
+    padding: 10px 12px;
+}
+
+/* =======================================
+   TEXT
+======================================= */
+.profile-name-header {
+    font-weight: 800;
+    font-size: 2rem;
+    color: #1a202c;
+    text-transform: uppercase;
+}
+
+.profile-role-subheader {
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.field-label {
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    margin-top: 25px;
+}
+
+.field-value {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 12px;
+}

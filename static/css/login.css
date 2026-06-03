@@ -1,0 +1,244 @@
+/* =========================
+   GLOBAL
+========================= */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: "Poppins", sans-serif;
+    background: #0d1117;
+    overflow: hidden;
+}
+
+/* =========================
+   BACKGROUND
+========================= */
+.bg-animation {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle at top left, #1e3a8a, #0d1117);
+}
+
+.shape {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    filter: blur(90px);
+    animation: float 10s ease-in-out infinite;
+}
+
+.shape1 {
+    background: rgba(255, 193, 7, 0.45);
+    top: 15%;
+    left: 10%;
+}
+
+.shape2 {
+    background: rgba(0, 255, 157, 0.45);
+    bottom: 10%;
+    right: 15%;
+    animation-delay: 2s;
+}
+
+.shape3 {
+    background: rgba(0, 149, 255, 0.45);
+    top: 45%;
+    left: 55%;
+    animation-delay: 4s;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(40px, -40px); }
+    100% { transform: translate(0, 0); }
+}
+
+/* =========================
+   LAYOUT
+========================= */
+.login-wrapper {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 1.2s ease;
+}
+
+.login-card {
+    width: 420px;
+    padding: 42px 38px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    text-align: center;
+    animation: slideUp 0.9s ease;
+}
+
+/* =========================
+   HEADER
+========================= */
+.logo {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 12px;
+    background: linear-gradient(135deg, #ffb703, #765603);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #071126;
+    font-size: 26px;
+    box-shadow: 0 8px 30px rgba(255, 193, 7, 0.4);
+}
+
+.system-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.system-subtitle {
+    font-size: 14px;
+    color: #c7c7c7;
+    margin-bottom: 24px;
+}
+
+/* =========================
+   FORM
+========================= */
+.input-box {
+    text-align: left;
+    margin-bottom: 18px;
+}
+
+.input-box label {
+    font-size: 13px;
+    color: #ddd;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 14px 14px;
+    margin-top: 6px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-box input:focus {
+    background: rgba(255,255,255,0.22);
+    border-color: #ffb703;
+    box-shadow: 0 0 0 3px rgba(255,183,3,0.25);
+}
+
+/* PASSWORD */
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 14px;
+    top: 65%;
+    transform: translateY(-40%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #ccc;
+}
+
+.password-toggle:hover {
+    color: #fff;
+}
+
+/* =========================
+   BUTTON
+========================= */
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #ffb703, #8a6400);
+    color: #071126;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(255, 193, 7, 0.4);
+    transition: 0.35s;
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 38px rgba(255, 193, 7, 0.6);
+}
+
+/* =========================
+   FORGOT PASSWORD
+========================= */
+.forgot-wrapper {
+    margin-top: 16px;
+}
+
+.forgot-wrapper a {
+    font-size: 13px;
+    color: #ffb703;
+    text-decoration: none;
+    transition: 0.25s;
+}
+
+.forgot-wrapper a:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+   ERROR
+========================= */
+.error-box {
+    background: rgba(255, 80, 80, 0.2);
+    padding: 10px;
+    border-radius: 12px;
+    color: #ff6b6b;
+    margin-bottom: 16px;
+    animation: shake 0.4s;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+}
+
+.captcha-wrapper {
+    margin-top: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}

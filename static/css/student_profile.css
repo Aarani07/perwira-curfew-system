@@ -1,0 +1,763 @@
+/* =======================================
+   STUDENT PROFILE PAGE
+======================================= */
+
+*{
+    box-sizing:border-box;
+}
+
+/* =======================================
+   PAGE LAYOUT
+======================================= */
+
+.student-profile-page{
+
+    max-width:1400px;
+
+    margin:auto;
+
+    padding:20px;
+}
+
+/* =======================================
+   PAGE HEADER
+======================================= */
+
+.profile-page-header h3{
+
+    font-size:34px;
+
+    font-weight:800;
+
+    color:#0f172a;
+}
+
+.profile-page-header p{
+
+    font-size:15px;
+
+    color:#64748b;
+}
+
+/* =======================================
+   PROFILE TABS
+======================================= */
+
+.profile-tabs{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:10px;
+
+    background:#ffffff;
+
+    border-radius:24px;
+
+    width:fit-content;
+
+    border:1px solid #e2e8f0;
+
+    box-shadow:
+        0 10px 24px rgba(15,23,42,.05);
+
+    margin-bottom:28px !important;
+
+    flex-wrap:wrap;
+}
+
+.profile-tabs .nav-link{
+
+    border:none !important;
+
+    background:transparent !important;
+
+    color:#64748b !important;
+
+    font-weight:600;
+
+    padding:14px 22px;
+
+    border-radius:16px;
+
+    transition:.25s ease;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+}
+
+.profile-tabs .nav-link:hover{
+
+    background:#f8fafc !important;
+
+    color:#2563eb !important;
+}
+
+.profile-tabs .nav-link.active{
+
+    background:linear-gradient(
+        135deg,
+        #111827,
+        #1f2937
+    ) !important;
+
+    color:white !important;
+
+    box-shadow:
+        0 10px 24px rgba(15,23,42,.15);
+}
+
+/* =======================================
+   CARD
+======================================= */
+
+.profile-section-card{
+
+    position:relative;
+
+    background:#ffffff;
+
+    border:none !important;
+
+    border-radius:28px;
+
+    padding:40px;
+
+    width:100%;
+
+    box-shadow:
+        0 10px 30px rgba(15,23,42,.06);
+
+    overflow:hidden;
+}
+
+.profile-section-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+
+    height:5px;
+
+    background:linear-gradient(
+        90deg,
+        #2563eb,
+        #60a5fa
+    );
+}
+
+/* =======================================
+   HERO SECTION
+======================================= */
+
+.profile-hero-container{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:50px;
+
+    width:100%;
+
+    padding-bottom:35px;
+
+    margin-bottom:35px;
+
+    border-bottom:1px solid #e5e7eb;
+
+    flex-wrap:wrap;
+}
+
+/* =======================================
+   LEFT SIDE
+======================================= */
+
+.profile-left{
+
+    width:220px;
+
+    min-width:220px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+}
+
+/* =======================================
+   AVATAR
+======================================= */
+
+.profile-avatar-wrapper{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+}
+
+.student-profile-pic{
+
+    width:190px !important;
+
+    height:190px !important;
+
+    object-fit:cover !important;
+
+    border-radius:50% !important;
+
+    border:6px solid #ffffff !important;
+
+    background:white;
+
+    box-shadow:
+        0 20px 50px rgba(15,23,42,.14);
+
+    transition:.3s ease;
+}
+
+.student-profile-pic:hover{
+
+    transform:scale(1.03);
+}
+
+/* PLACEHOLDER */
+
+.profile-avatar-placeholder{
+
+    width:190px;
+
+    height:190px;
+
+    border-radius:50%;
+
+    background:linear-gradient(
+        135deg,
+        #2563eb,
+        #4f46e5
+    );
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:white;
+
+    font-size:60px;
+
+    font-weight:800;
+
+    border:6px solid white;
+
+    box-shadow:
+        0 20px 50px rgba(15,23,42,.14);
+}
+
+/* =======================================
+   STATUS BADGE
+======================================= */
+
+.profile-status-badge{
+
+    margin-top:18px;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    background:#ecfdf5;
+
+    color:#059669;
+
+    padding:10px 18px;
+
+    border-radius:999px;
+
+    font-size:14px;
+
+    font-weight:700;
+}
+
+/* =======================================
+   RIGHT SIDE
+======================================= */
+
+.profile-right{
+
+    flex:1;
+
+    min-width:300px;
+}
+
+/* =======================================
+   HEADER ROW
+======================================= */
+
+.profile-header-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    gap:30px;
+
+    margin-bottom:30px;
+
+    flex-wrap:wrap;
+}
+
+/* =======================================
+   NAME
+======================================= */
+
+.student-main-name{
+
+    font-size:44px;
+
+    font-weight:800;
+
+    color:#0f172a;
+
+    line-height:1.1;
+
+    margin-bottom:18px;
+}
+
+/* =======================================
+   META TAGS
+======================================= */
+
+.student-meta{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:12px;
+}
+
+.student-meta span{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    background:#f8fafc;
+
+    padding:12px 18px;
+
+    border-radius:14px;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#334155;
+}
+
+/* =======================================
+   QUICK INFO
+======================================= */
+
+.profile-quick-info{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:18px;
+}
+
+.quick-info-card{
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:18px;
+
+    padding:20px;
+}
+
+.quick-info-card span{
+
+    display:block;
+
+    color:#64748b;
+
+    font-size:13px;
+
+    margin-bottom:8px;
+}
+
+.quick-info-card strong{
+
+    color:#0f172a;
+
+    font-size:17px;
+
+    font-weight:700;
+}
+
+/* =======================================
+   EDIT BUTTON
+======================================= */
+
+#editInfoBtn{
+
+    height:54px;
+
+    padding:0 24px;
+
+    border-radius:14px;
+
+    border:none;
+
+    background:linear-gradient(
+        135deg,
+        #2563eb,
+        #3b82f6
+    );
+
+    font-weight:700;
+
+    box-shadow:
+        0 12px 24px rgba(37,99,235,.22);
+}
+
+/* =======================================
+   FORM
+======================================= */
+
+.form-label{
+
+    font-size:14px;
+
+    font-weight:700 !important;
+
+    color:#0f172a !important;
+
+    margin-bottom:10px;
+}
+
+.form-control{
+
+    width:100%;
+
+    min-height:58px;
+
+    border-radius:16px !important;
+
+    border:1px solid #dbe2ea !important;
+
+    background:#f8fafc !important;
+
+    padding:14px 18px;
+
+    font-size:15px;
+
+    font-weight:500;
+
+    transition:.2s ease;
+}
+
+.form-control:disabled{
+
+    background:#f8fafc !important;
+
+    color:#334155 !important;
+
+    border-color:#e2e8f0 !important;
+}
+
+.form-control:focus{
+
+    background:white !important;
+
+    border-color:#2563eb !important;
+
+    box-shadow:
+        0 0 0 4px rgba(37,99,235,.10) !important;
+}
+
+/* =======================================
+   BUTTONS
+======================================= */
+
+.btn{
+
+    border-radius:14px !important;
+
+    font-weight:600 !important;
+
+    min-height:50px;
+}
+
+/* =======================================
+   FACE SECTION
+======================================= */
+
+.face-video-wrapper{
+
+    width:100%;
+
+    height:360px;
+
+    background:#000;
+
+    border-radius:14px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+}
+
+#faceCaptureVideo{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+}
+
+.face-instruction-panel{
+
+    border-radius:18px;
+
+    background:#f8fafc !important;
+
+    border:none !important;
+}
+
+/* =======================================
+   MODAL
+======================================= */
+
+#faceCaptureModal{
+
+    z-index:3000;
+}
+
+.modal-backdrop.show{
+
+    opacity:.7 !important;
+
+    z-index:2990 !important;
+}
+
+/* =======================================
+   RESPONSIVE
+======================================= */
+
+@media(max-width:992px){
+
+    .profile-hero-container{
+
+        flex-direction:column;
+
+        text-align:center;
+    }
+
+    .profile-header-row{
+
+        flex-direction:column;
+
+        align-items:center;
+    }
+
+    .student-meta{
+
+        justify-content:center;
+    }
+
+    .profile-quick-info{
+
+        grid-template-columns:1fr;
+    }
+
+    .student-main-name{
+
+        font-size:34px;
+    }
+}
+
+@media(max-width:768px){
+
+    .student-profile-page{
+
+        padding:14px;
+    }
+
+    .profile-section-card{
+
+        padding:24px;
+    }
+
+    .profile-tabs{
+
+        width:100%;
+
+        overflow-x:auto;
+
+        flex-wrap:nowrap;
+    }
+
+    .student-profile-pic,
+    .profile-avatar-placeholder{
+
+        width:140px !important;
+
+        height:140px !important;
+
+        font-size:42px;
+    }
+
+    .student-main-name{
+
+        font-size:28px;
+    }
+
+    .student-meta span{
+
+        width:100%;
+
+        justify-content:center;
+    }
+}
+
+#studentInfoForm{
+    margin-top:30px;
+}
+
+/* =======================================
+   PROFILE PHOTO UPLOAD
+======================================= */
+
+/* =======================================
+   PROFILE UPLOAD
+======================================= */
+
+.profile-upload-form{
+
+    margin-top:18px;
+
+    width:100%;
+
+    display:flex;
+
+    justify-content:center;
+}
+
+.upload-profile-btn{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:10px;
+
+    width:190px;
+
+    padding:14px 20px;
+
+    border-radius:16px;
+
+    background:linear-gradient(
+        135deg,
+        #2563eb,
+        #3b82f6
+    );
+
+    color:white;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s ease;
+
+    box-shadow:
+        0 10px 24px rgba(37,99,235,.22);
+}
+
+.upload-profile-btn:hover{
+
+    transform:translateY(-2px);
+
+    background:linear-gradient(
+        135deg,
+        #1d4ed8,
+        #2563eb
+    );
+}
+
+.upload-guideline{
+
+    margin-top:14px;
+
+    text-align:center;
+
+    font-size:13px;
+
+    line-height:1.6;
+
+    color:#64748b;
+
+    max-width:240px;
+}
+
+/* =======================================
+   FLASH MESSAGE
+======================================= */
+
+.flash-message-wrapper{
+
+    margin-bottom:24px;
+}
+
+.alert{
+
+    border:none;
+
+    border-radius:16px;
+
+    padding:16px 20px;
+
+    font-weight:600;
+
+    box-shadow:
+        0 10px 24px rgba(15,23,42,.06);
+}

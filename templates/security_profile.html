@@ -1,0 +1,140 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Security Profile | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/officer_profile.css') }}">
+{% endblock %}
+
+{% block page_header %}
+<h5 class="fw-bold">Security Officer Profile</h5>
+<p class="text-muted mb-4">
+    View and manage your personal information
+</p>
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-container card shadow-sm p-4">
+
+    <form action="{{ url_for('security_profile') }}"
+          method="POST"
+          enctype="multipart/form-data"
+          id="profileForm">
+
+        <div class="row g-4">
+
+            <!-- ================= PROFILE PICTURE ================= -->
+            <div class="col-md-4 text-center">
+                <div class="profile-img-wrapper">
+                    <img id="profilePreview"
+                        src="{{ url_for('static', filename='images/profiles/' ~ security['officer_official_pic'])
+                            if security['officer_official_pic']
+                            else url_for('static', filename='images/default-profile.png') }}"
+                        alt="Profile Picture">
+
+                    <!-- Hidden file input -->
+                    <input type="file"
+                        id="fileInput"
+                        name="officer_official_pic"
+                        accept="image/*"
+                        hidden
+                        onchange="previewImage(this)">
+
+                    <!-- Upload button -->
+                    <button type="button"
+                            class="btn btn-dark upload-btn"
+                            onclick="document.getElementById('fileInput').click()">
+                        <i class="fa-solid fa-camera"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= PROFILE DETAILS ================= -->
+            <div class="col-md-8">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Full Name</label>
+                        <input type="text"
+                               class="form-control editable"
+                               name="officer_name"
+                               value="{{ security['officer_name'] }}"
+                               disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Staff ID</label>
+                        <input type="text"
+                               class="form-control"
+                               value="{{ security['staff_id'] }}"
+                               disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input type="email"
+                               class="form-control editable"
+                               name="officer_email"
+                               value="{{ security['officer_email'] }}"
+                               disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text"
+                               class="form-control editable"
+                               name="officer_phone"
+                               value="{{ security['officer_phone'] }}"
+                               disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Join Date</label>
+                        <input type="text"
+                               class="form-control"
+                               value="{{ security['created_at'] }}"
+                               disabled>
+                    </div>
+
+                </div>
+
+                <!-- ================= ACTION BUTTONS ================= -->
+                <div class="mt-4 d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-primary"
+                            onclick="enableEdit()">
+                        <i class="fa-solid fa-pen me-1"></i> Edit Profile
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-success d-none"
+                            id="saveBtn">
+                        <i class="fa-solid fa-save me-1"></i> Save Changes
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function enableEdit() {
+    document.querySelectorAll('.editable').forEach(el => el.disabled = false);
+    document.getElementById('saveBtn').classList.remove('d-none');
+}
+
+function previewImage(input) {
+    const preview = document.getElementById('profilePreview');
+    const file = input.files[0];
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+    }
+}
+</script>
+{% endblock %}

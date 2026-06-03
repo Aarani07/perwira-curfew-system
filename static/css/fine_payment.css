@@ -1,0 +1,414 @@
+.fine-page {
+    padding: 25px 30px;
+}
+
+/* HERO SECTION */
+.fine-hero {
+    background: #f8f9fc;
+    border-radius: 24px;
+    padding: 35px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 35px;
+    border: 1px solid #e5e7eb;
+}
+
+.hero-left {
+    flex: 1;
+    min-width: 300px;
+}
+
+.hero-left h1 {
+    font-size: 42px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 16px;
+    line-height: 1.1;
+}
+
+.hero-left p {
+    font-size: 17px;
+    line-height: 1.7;
+    color: #64748b;
+    max-width: 520px;
+}
+
+/* STATS */
+.hero-stats {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    width: 220px;
+    min-height: 140px;
+    background: white;
+    border-radius: 22px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    border: 1px solid #f1f5f9;
+}
+
+.stat-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.pending .stat-icon {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.paid .stat-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.overdue .stat-icon {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.stat-card h2 {
+    font-size: 34px;
+    margin: 0;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
+}
+
+.stat-card p {
+    margin: 4px 0 0;
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* TABLE SECTION */
+.fine-table-container {
+    background: white;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    border: 1px solid #edf2f7;
+}
+
+.table-header {
+    margin-bottom: 30px;
+}
+
+.table-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 5px;
+}
+
+.table-header p {
+    color: #64748b;
+    font-size: 16px;
+}
+
+.fine-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fine-table thead {
+    background: #f8fafc;
+}
+
+.fine-table th {
+    padding: 18px;
+    font-size: 16px;
+    text-align: left;
+    color: #334155;
+}
+
+.fine-table td {
+    padding: 22px 18px;
+    border-top: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.amount {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* STATUS BADGES */
+.status-badge {
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.status-badge.paid {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.unpaid {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* BUTTONS */
+.pay-btn {
+    background: #111827;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.pay-btn:hover {
+    background: #1f2937;
+    color: white;
+}
+
+.paid-btn {
+    background: #dcfce7;
+    color: #166534;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+/* EMPTY STATE */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-state i {
+    font-size: 80px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-size: 34px;
+    margin-bottom: 10px;
+    color: #0f172a;
+}
+
+.empty-state p {
+    font-size: 18px;
+    color: #64748b;
+}
+
+/* ADMIN PAGE EXTRA */
+.student-name {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.fine-table tbody tr:hover {
+    background: #f8fafc;
+    transition: 0.2s ease;
+}
+
+.fine-table td {
+    font-size: 15px;
+}
+
+.fine-table th {
+    white-space: nowrap;
+}
+
+/* =====================================================
+   MOBILE RESPONSIVE - PENALTY PAYMENT PAGE
+===================================================== */
+
+@media (max-width: 768px) {
+
+    /* PAGE */
+    .fine-page {
+        padding: 18px 16px;
+    }
+
+    /* HERO SECTION */
+    .fine-hero {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        padding: 28px 22px;
+
+        gap: 24px;
+
+        border-radius: 24px;
+    }
+
+    /* HERO LEFT */
+    .hero-left {
+        width: 100%;
+    }
+
+    .hero-left h1 {
+
+        font-size: 34px;
+
+        line-height: 1.1;
+
+        margin-bottom: 14px;
+    }
+
+    .hero-left p {
+
+        font-size: 16px;
+
+        line-height: 1.7;
+    }
+
+    /* STATS CONTAINER */
+    .hero-stats {
+
+        width: 100%;
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 14px;
+    }
+
+    /* STAT CARD */
+    .stat-card {
+
+        width: 100%;
+
+        min-height: auto;
+
+        padding: 18px;
+
+        border-radius: 20px;
+    }
+
+    /* ICON */
+    .stat-icon {
+
+        width: 54px;
+        height: 54px;
+
+        font-size: 20px;
+    }
+
+    /* NUMBER */
+    .stat-card h2 {
+
+        font-size: 28px;
+    }
+
+    /* TEXT */
+    .stat-card p {
+
+        font-size: 14px;
+    }
+
+    /* TABLE SECTION */
+    .fine-table-container {
+
+        padding: 22px 18px;
+
+        border-radius: 22px;
+    }
+
+    .table-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 12px;
+    }
+
+    .table-header h2 {
+
+        font-size: 24px;
+    }
+
+    .table-header p {
+
+        font-size: 15px;
+    }
+
+    /* TABLE */
+    .fine-table {
+
+        min-width: 800px;
+    }
+
+    /* BUTTONS */
+    .pay-btn,
+    .paid-btn {
+
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+
+        padding: 40px 20px;
+    }
+
+    .empty-state h3 {
+
+        font-size: 22px;
+    }
+
+    .empty-state p {
+
+        font-size: 15px;
+    }
+}
+
+.notify-btn{
+    border:none;
+    background:#dc3545;
+    color:white;
+    padding:8px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:600;
+    transition:0.3s ease;
+}
+
+.notify-btn:hover{
+    background:#bb2d3b;
+    transform:translateY(-2px);
+}
+
+.notify-btn i{
+    margin-right:6px;
+}
+
+.status-badge.overdue{
+    background:#fff3cd;
+    color:#856404;
+}

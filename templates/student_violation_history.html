@@ -1,0 +1,212 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}My Violations History | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="user-list-page">
+    <div class="modern-page-header">
+
+        <div class="header-content">
+
+            <h1 class="modern-page-title">
+                Curfew Violations
+            </h1>
+
+            <p class="modern-page-subtitle">
+                Monitor and manage your curfew violation records,
+                appeal submissions, and disciplinary status updates.
+            </p>
+
+        </div>
+
+        <div class="header-stats">
+
+            <div class="mini-stat-card">
+                <div class="mini-stat-icon red">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+
+                <div>
+                    <div class="mini-stat-value">
+                        {{ violations|length }}
+                    </div>
+
+                    <div class="mini-stat-label">
+                        Total Violations
+                    </div>
+                </div>
+            </div>
+
+            <div class="mini-stat-card">
+                <div class="mini-stat-icon yellow">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+
+                <div>
+                    <div class="mini-stat-value">
+                        {{ violations
+                            | selectattr("status", "equalto", "Pending")
+                            | list
+                            | length }}
+                    </div>
+
+                    <div class="mini-stat-label">
+                        Pending Appeals
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===== FILTER BAR ===== -->
+    <div class="filter-wrapper">
+        <button class="filter-btn">
+            <i class="fa-solid fa-filter"></i> Filters
+        </button>
+
+        <div class="filter-fields">
+            <select id="statusFilter">
+                <option value="">All Status</option>
+                <option value="Unexcused">Unexcused</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+            </select>
+
+            <input type="date" id="dateFrom">
+            <input type="date" id="dateTo">
+        </div>
+    </div>
+
+    <p class="small text-muted mb-3">
+        Showing {{ violations|length }} violation(s)
+    </p>
+
+    <!-- ===== VIOLATION CARDS ===== -->
+    <div class="violation-card-grid">
+
+        {% for v in violations %}
+        <div class="violation-card"
+             data-status="{{ v.status }}"
+             data-date="{{ v.date }}">
+
+            <div class="card-row">
+                <strong>Date</strong>
+                <span>
+                    {{ v.date }}
+                </span>
+            </div>
+
+            <div class="card-row">
+                <strong>Time</strong>
+                <span>{{ v.time }}</span>
+            </div>
+
+            <div class="card-row">
+                <strong>Status</strong>
+                <span class="status-badge {{ v.status|lower|replace(' ', '-') }}">
+                    {{ v.status }}
+                </span>
+            </div>
+
+            <button class="view-btn"
+                    onclick="openDetails(
+                        '{{ v.date }}',
+                        '{{ v.time }}',
+                        '{{ v.status }}'
+                    )">
+
+                <i class="fa-solid fa-eye"></i>
+                View Details
+
+            </button>
+        </div>
+        {% else %}
+        <p class="text-muted">No violation records found.</p>
+        {% endfor %}
+
+    </div>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal fade appeal-modal" id="violationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Violation Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p><strong>Date:</strong> <span id="mDate"></span></p>
+                <p><strong>Time:</strong> <span id="mTime"></span></p>
+                <p><strong>Late Minutes:</strong> Based on curfew</p>
+                <p><strong>Status:</strong> <span id="mStatus"></span></p>
+                <p><strong>Remarks:</strong> Refer to security office</p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openDetails(date, time, status) {
+    document.getElementById("mDate").innerText = date;
+    document.getElementById("mTime").innerText = time;
+    document.getElementById("mStatus").innerText = status;
+
+    const modalEl = document.getElementById("violationModal");
+
+    let modal = bootstrap.Modal.getInstance(modalEl);
+
+    if (!modal) {
+        modal = new bootstrap.Modal(modalEl);
+    }
+
+    modal.show();
+}
+
+function filterCards() {
+    const status = document.getElementById("statusFilter").value;
+    const from = document.getElementById("dateFrom").value;
+    const to = document.getElementById("dateTo").value;
+
+    document.querySelectorAll(".violation-card").forEach(card => {
+        const cardStatus = card.dataset.status;
+        const cardDate = card.dataset.date;
+
+        let visible = true;
+
+        if (status && cardStatus !== status) visible = false;
+        if (from && cardDate < from) visible = false;
+        if (to && cardDate > to) visible = false;
+
+        card.style.display = visible ? "block" : "none";
+    });
+
+    document.getElementById("statusFilter")
+        .addEventListener("change", filterCards);
+
+    document.getElementById("dateFrom")
+        .addEventListener("change", filterCards);
+
+    document.getElementById("dateTo")
+        .addEventListener("change", filterCards);
+}
+</script>
+{% endblock %}

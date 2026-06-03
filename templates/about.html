@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Perwira Residential College</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+    <link rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- MAIN WRAPPER FOR FIXED DESKTOP LAYOUT -->
+<div class="app-container">
+
+    <!-- TOP NAV BAR -->
+    <div class="topbar">
+        <a href="{{ url_for('index') }}" class="back-btn">← Back</a>
+
+        <div class="center-content">
+            <img src="{{ url_for('static', filename='images/about/uthm_logo.png') }}" class="nav-logo">
+            <img src="{{ url_for('static', filename='images/about/kklk_logo.png') }}" class="nav-logo">
+            <span class="system-title">PERWIRA CURFEW DETECTION SYSTEM</span>
+        </div>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <img src="{{ url_for('static', filename='images/about/perwira_building.jpg') }}" class="hero-img">
+        <div class="hero-text">
+            <h2>About Our College</h2>
+            <p>Perwira is an on-campus student accommodation facility operated by the university to provide a safe, organized, 
+              and supportive living environment. It houses students in designated blocks or units and offers various services such as 
+              security, welfare support, and residential management to ensure student well-being and discipline.</p>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section class="about-section">
+
+        <!-- Full Image -->
+        <div class="about-image-container">
+            <img src="{{ url_for('static', filename='images/about/carta_organisasi_perwira.jpg') }}" class="about-full-img">
+        </div>
+
+        <!-- VISI & MISI -->
+        <div class="vision-mission">
+
+            <h2 class="section-title">VISI</h2>
+            <p class="vm-text">
+                Beriltizam menyediakan kemudahan yang mencukupi dan berkualiti selaras dengan keperluan universiti.
+            </p>
+
+            <h2 class="section-title">MISI</h2>
+            <p class="vm-text">
+                Kolej Kediaman Luar Kampus komited untuk menyemai budaya ilmu ke arah pembangunan mahasiswa syumul
+                selaras visi dan misi universiti.
+            </p>
+
+            <h2 class="section-title">PIAGAM PELANGGAN</h2>
+            <ul class="charter-list">
+                <li>Memastikan aduan kerosakan (penyelenggaraan kecil, perabot) diselesaikan dalam tempoh 7 hari bekerja.</li>
+                <li>Memastikan pendaftaran kolej bagi pelajar baharu dan pelajar kanan diselesaikan dalam masa kurang daripada 1 minit.</li>
+            </ul>
+
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>© 2025 Perwira Residential College, UTHM</p>
+    </footer>
+
+</div> <!-- END app-container -->
+
+<script src="{{ url_for('static', filename='js/about.js') }}"></script>
+</body>
+</html>

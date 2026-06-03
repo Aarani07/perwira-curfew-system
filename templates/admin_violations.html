@@ -1,0 +1,484 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Curfew Violations | PRCDS
+{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Curfew Violations</h2>
+        <p class="page-subtitle">Monitor and manage student curfew violations</p>
+    </div>
+
+    <!-- ================= FILTERS ================= -->
+    <div class="control-bar violation-topbar">
+
+        <div class="violation-toolbar">
+            
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+
+                <input type="text"
+                    id="violationSearch"
+                    placeholder="Search by student name or matric number...">
+            </div>
+
+        
+            <div class="violation-filters">
+
+                <!-- STATUS -->
+                <select class="form-select modern-filter" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="Unexcused">Unexcused</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Pending">Pending</option>
+                </select>
+
+                <!-- METHOD -->
+                <select class="form-select modern-filter" id="methodFilter">
+                    <option value="">All Methods</option>
+                    <option value="Face Recognition">Face Recognition</option>
+                    <option value="QR Code">QR Code</option>
+                    <option value="Manual Entry">Manual Entry</option>
+                </select>
+
+                <!-- APPLY BUTTON -->
+                <button id="applyFiltersBtn" class="apply-filter-btn">
+                    <i class="fas fa-filter"></i>
+                    Apply Filters
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- ================= DATA TABLE ================= -->
+<div class="data-table-container mt-4">
+<table class="violation-table">
+<thead>
+<tr>
+    <th>Student Name</th>
+    <th>Matric Number</th>
+    <th>Date of Violation</th>
+    <th>Curfew Time</th>
+    <th>Appeal Status</th>
+    <th>Detection Method</th>
+    <th>Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for v in violations %}
+<tr
+    data-status="{{ v.status }}"
+    data-method="
+        {% if v.detection_method == 'Face' %}
+            Face Recognition
+        {% elif v.detection_method == 'QR' %}
+            QR Code
+        {% else %}
+            Manual Entry
+        {% endif %}
+    "
+>
+    <td><strong>{{ v.student_name }}</strong></td>
+    <td>{{ v.matric_no }}</td>
+    <td class="date-cell">
+        <div class="main-date">
+            {{ v.violation_date.strftime('%d %B %Y') }}
+        </div>
+
+        <div class="sub-date">
+            {{ v.created_at.strftime('%I:%M %p') }}
+        </div>
+    </td>
+    <td>
+    {% set hrs = v.late_minutes // 60 %}
+    {% set mins = v.late_minutes % 60 %}
+
+    {% if hrs > 0 %}
+        {{ hrs }} hr {{ mins }} mins late
+    {% else %}
+        {{ mins }} mins late
+    {% endif %}
+    </td>
+    <td>
+        <span class="violation-status
+            {% if v.status == 'Unexcused' %}
+                status-unexcused
+            {% elif v.status == 'Approved' %}
+                status-approved
+            {% elif v.status == 'Pending' %}
+                status-pending
+            {% endif %}
+        ">
+            {{ v.status }}
+        </span>
+    </td>
+    <td>
+        <span class="method-badge">
+            {% if v.detection_method == 'Face' %}
+                Face Recognition
+            {% elif v.detection_method == 'QR' %}
+                QR Code
+            {% else %}
+                Manual Entry
+            {% endif %}
+        </span>
+    </td>
+    <td>
+        <div class="action-buttons">
+
+            <button
+                class="view-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#violationModal{{ v.violation_id }}">
+                <i class="fas fa-eye"></i>
+            </button>
+
+        </div>
+    </td>
+</tr>
+<!-- VIEW VIOLATION MODAL -->
+<div class="modal fade violation-modal"
+     id="violationModal{{ v.violation_id }}"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+
+            <div class="violation-modal-body">
+
+                <!-- CLOSE -->
+                <button type="button"
+                        class="modern-close"
+                        data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <!-- TOP -->
+                <div class="violation-top">
+
+                    <!-- LEFT -->
+                    <div class="violation-profile">
+
+                        <img src="{{
+                            url_for(
+                                'static',
+                                filename='images/profiles/' ~
+                                (v.student_official_pic if v.student_official_pic else 'default.png')
+                            )
+                        }}">
+
+                        <h4>{{ v.student_name }}</h4>
+                        <p>{{ v.matric_no }}</p>
+
+                    </div>
+
+                    <!-- RIGHT -->
+                    <div>
+
+                        <h5 class="section-title mt-0">
+                            Violation Information
+                        </h5>
+
+                        <div class="violation-info-grid">
+
+                            <div class="violation-info-card">
+                                <label>IC Number</label>
+                                <h6>{{ v.student_ic_no }}</h6>
+                            </div>
+                            
+                            <div class="violation-info-card">
+                                <label>Block</label>
+                                <h6>{{ v.block }}</h6>
+                            </div>
+
+                            <div class="violation-info-card">
+                                <label>Room Number</label>
+                                <h6>{{ v.room_no }}</h6>
+                            </div>
+
+                            <div class="violation-info-card">
+                                <label>Phone Number</label>
+                                <h6>{{ v.student_phone }}</h6>
+                            </div>
+
+                            <div class="violation-info-card">
+                                <label>Date of Violation</label>
+                                <h6>{{ v.violation_date }}</h6>
+                            </div>
+
+                            <div class="violation-info-card">
+                                <label>Late Duration</label>
+                                <h6>
+
+                                    {% set hrs = v.late_minutes // 60 %}
+                                    {% set mins = v.late_minutes % 60 %}
+
+                                    {% if hrs > 0 %}
+                                        {{ hrs }} hr {{ mins }} mins
+                                    {% else %}
+                                        {{ mins }} mins
+                                    {% endif %}
+
+                                </h6>
+                            </div>
+
+                            <div class="violation-info-card">
+                                <label>Appeal Status</label>
+
+                                <h6>
+                                    <span class="violation-status
+                                        {% if v.status == 'Unexcused' %}
+                                            status-unexcused
+                                        {% elif v.status == 'Approved' %}
+                                            status-approved
+                                        {% elif v.status == 'Pending' %}
+                                            status-pending
+                                        {% endif %}
+                                    ">
+                                        {{ v.status }}
+                                    </span>
+                                </h6>
+                            </div>
+
+                            <div class="violation-info-card">
+                                <label>Detection Method</label>
+
+                                <h6>
+                                    {% if v.detection_method == 'Face' %}
+                                        Face Recognition
+                                    {% elif v.detection_method == 'QR' %}
+                                        QR Code 
+                                    {% else %}
+                                        Manual Entry
+                                    {% endif %}
+                                </h6>
+                            </div>
+
+                        </div>
+
+                        <!-- APPEAL -->
+                        <h5 class="section-title">
+                            Excuse Letter
+                        </h5>
+
+                        <div class="appeal-box">
+
+                            {% if v.appeal_id %}
+
+                                <div class="status-row">
+
+                                    <span class="status-label">
+                                        Appeal Status
+                                    </span>
+
+                                    <span class="status-pill
+                                        {% if v.appeal_status == 'Approved' %}
+                                            status-approved
+
+                                        {% elif v.appeal_status == 'Unexcused' %}
+                                            status-rejected
+
+                                        {% else %}
+                                            status-pending
+                                        {% endif %}
+                                    ">
+                                        {{ v.appeal_status }}
+                                    </span>
+
+                                </div>
+
+                                <div class="letter-details">
+
+                                    <p class="mb-2">
+                                        {{ v.appeal_reason }}
+                                    </p>
+
+                                    {% if v.appeal_file_path %}
+
+                                        <a href="{{ url_for('admin_appeal_file',
+                                                            appeal_id=v.appeal_id) }}"
+                                        target="_blank"
+                                        class="view-letter-btn">
+
+                                            <i class="fas fa-file-pdf me-2"></i>
+                                            View Excuse Letter
+
+                                        </a>
+
+                                    {% endif %}
+
+                                </div>
+
+                            {% else %}
+
+                                <div class="no-record">
+                                    No appeal letter submitted.
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- WARNING LETTER -->
+                        <h5 class="section-title">
+                            Warning Letter
+                        </h5>
+
+                        <div class="warning-box">
+
+                            {% if v.warning_id %}
+
+                                <div class="status-row">
+
+                                    <span class="status-label">
+                                        Warning Status
+                                    </span>
+
+                                    <span class="status-pill
+                                        {% if v.warning_letter_status == 'Confirmed' %}
+                                            status-approved
+
+                                        {% elif v.warning_letter_status == 'Verified' %}
+                                            status-pending
+
+                                        {% elif v.warning_letter_status == 'Sent to Student' %}
+                                            status-pending
+
+                                        {% elif v.warning_letter_status == 'Draft' %}
+                                            status-rejected
+                                        {% endif %}
+                                    ">
+                                        {{ v.warning_letter_status }}
+                                    </span>
+
+                                </div>
+
+                                <div class="letter-details">
+
+                                    <p class="mb-3">
+                                        {{ v.warning_reason }}
+                                    </p>
+
+                                    <a href="{{ url_for('view_warning_letter',
+                                                        warning_id=v.warning_id) }}"
+                                    target="_blank"
+                                    class="view-letter-btn">
+
+                                        <i class="fas fa-file-alt me-2"></i>
+                                        View Warning Letter
+
+                                    </a>
+
+                                </div>
+
+                            {% else %}
+
+                                <div class="no-record">
+                                    No warning letter issued.
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% else %}
+<tr>
+    <td colspan="9" class="text-center py-5 text-muted">
+        No curfew violations found.
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+const searchInput = document.getElementById('violationSearch');
+
+const statusFilter = document.getElementById('statusFilter');
+
+const methodFilter = document.getElementById('methodFilter');
+
+const applyBtn = document.getElementById('applyFiltersBtn');
+
+function applyFilters() {
+
+    const searchValue = searchInput.value.toLowerCase();
+
+    const statusValue = statusFilter.value;
+
+    const methodValue = methodFilter.value;
+
+    const rows = document.querySelectorAll('.violation-table tbody tr');
+
+    rows.forEach(row => {
+
+        // SKIP EMPTY ROW
+        if (row.querySelector('td[colspan]')) return;
+
+        const rowText = row.innerText.toLowerCase();
+
+        const rowStatus = row.dataset.status?.trim();
+
+        const rowMethod = row.dataset.method?.trim();
+
+        let visible = true;
+
+        // SEARCH
+        if (!rowText.includes(searchValue)) {
+            visible = false;
+        }
+
+        // STATUS FILTER
+        if (statusValue && rowStatus !== statusValue) {
+            visible = false;
+        }
+
+        // METHOD FILTER
+        if (methodValue && rowMethod !== methodValue) {
+            visible = false;
+        }
+
+        row.style.display = visible ? '' : 'none';
+
+    });
+
+}
+
+// SEARCH LIVE
+searchInput.addEventListener('keyup', applyFilters);
+
+// APPLY BUTTON
+applyBtn.addEventListener('click', applyFilters);
+
+</script>
+
+{% endblock %}

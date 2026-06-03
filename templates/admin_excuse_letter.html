@@ -1,0 +1,562 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Excuse Letters | PRCDS
+{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header mb-4">
+    <div>
+        <h2 class="page-title">Excuse Letters</h2>
+        <p class="page-subtitle">Review and manage student appeal submissions</p>
+    </div>
+</div>
+
+<div class="excuse-summary-grid">
+
+    <div class="excuse-summary-card pending-card">
+        <div class="summary-top">
+            <span>Pending Reviews</span>
+            <i class="fa-regular fa-clock"></i>
+        </div>
+
+        <h2>
+            {{ appeals|selectattr("status","equalto","Pending")|list|length }}
+        </h2>
+
+        <p>Awaiting administrator action</p>
+    </div>
+
+    <div class="excuse-summary-card approved-card">
+        <div class="summary-top">
+            <span>Approved Letters</span>
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+
+        <h2>
+            {{ appeals|selectattr("status","equalto","Approved")|list|length }}
+        </h2>
+
+        <p>Successfully approved submissions</p>
+    </div>
+
+    <div class="excuse-summary-card rejected-card">
+        <div class="summary-top">
+            <span>Unexcused Letters</span>
+            <i class="fa-solid fa-circle-xmark"></i>
+        </div>
+
+        <h2>
+            {{ appeals|selectattr("status","equalto","Unexcused")|list|length }}
+        </h2>
+
+        <p>Unexcused violation cases</p>
+    </div>
+
+</div>
+
+<div class="control-bar excuse-filter-bar d-flex align-items-center gap-3">    
+    <div class="search-box flex-grow-1">
+        <i class="fas fa-search"></i>
+        <input type="text" id="appealSearch"
+               placeholder="Search by student name or matric number...">
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="tab-btn active" onclick="filterStatus('All', this)">All</button>
+        <button class="tab-btn" onclick="filterStatus('Pending', this)">Pending</button>
+        <button class="tab-btn" onclick="filterStatus('Approved', this)">Approved</button>
+        <button class="tab-btn" onclick="filterStatus('Unexcused', this)">Unexcused</button>
+    </div>
+</div>
+
+<div class="data-table-container excuse-table-container">
+<table>
+<thead>
+<tr>
+    <th>Student Name</th>
+    <th>Date of Violation</th>
+    <th>Submission Date</th>
+    <th>Status</th>
+    <th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+{% for a in appeals %}
+<tr data-status="{{ a.status }}">
+    <td>
+        <div class="excuse-student">
+            <div class="excuse-avatar">
+                {{ a.student_name[0] }}
+            </div>
+
+            <div>
+                <div class="student-main-name">
+                    {{ a.student_name }}
+                </div>
+
+                <div class="student-sub-info">
+                    {{ a.matric_no }}
+                </div>
+            </div>
+        </div>
+    </td>
+    <td>
+        <div class="violation-info-box">
+            <div>
+                <strong>
+                    {% if a.violation_date %}
+                        {{ a.violation_date.strftime('%d %B %Y') }}
+                    {% else %}
+                        No violation date
+                    {% endif %}
+                </strong>
+            </div>
+
+            <small>
+
+                {% if a.late_minutes is not none %}
+
+                    {% set hours = a.late_minutes // 60 %}
+                    {% set minutes = a.late_minutes % 60 %}
+
+                    {% if hours > 0 %}
+                        {{ hours }}hr{% if hours > 1 %}s{% endif %}
+                    {% endif %}
+
+                    {% if minutes > 0 %}
+                        {{ minutes }} mins
+                    {% endif %}
+
+                    late
+
+                {% else %}
+
+                    Pre-approval submission
+
+                {% endif %}
+
+            </small>
+
+            <div class="violation-method">
+                {{ a.remarks if a.remarks else 'No remarks' }}
+            </div>
+        </div>
+    </td>
+    <td>
+        {{ a.submitted_at.strftime('%d %B %Y %I.%M%p').replace('AM','am').replace('PM','pm') }}
+    </td>
+    <td>
+        <span class="modern-status-badge
+            {% if a.status == 'Pending' %}
+                status-pending
+
+            {% elif a.status == 'Approved' %}
+                status-approved
+
+            {% else %}
+                status-rejected
+
+            {% endif %}">
+
+            {% if a.status == 'Pending' %}
+
+                <i class="fa-regular fa-clock"></i>
+                Pending
+
+            {% elif a.status == 'Approved' %}
+
+                <i class="fa-solid fa-circle-check"></i>
+                Approved
+
+            {% else %}
+
+                <i class="fa-solid fa-circle-xmark"></i>
+                Unexcused
+
+            {% endif %}
+
+        </span>
+    </td>
+    <td>
+        <i class="fas fa-eye view-icon"
+           data-bs-toggle="modal"
+           data-bs-target="#appealModal{{ a.appeal_id }}"></i>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="6" class="text-center py-5 text-muted">
+        No excuse letters found.
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+{% for a in appeals %}
+<div class="modal fade" id="appealModal{{ a.appeal_id }}" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content admin-appeal-modal">
+            <form method="POST" action="{{ url_for('admin_review_appeal') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa-regular fa-file-lines me-2 text-primary"></i>
+                        Excuse Letter Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="appeal_id" value="{{ a.appeal_id }}">
+                    <input type="hidden" name="violation_id" value="{{ a.violation_id }}">
+                    <input type="hidden" name="decision" id="decisionInput{{ a.appeal_id }}">
+                    <input type="hidden" name="admin_signature" id="signatureInput{{ a.appeal_id }}">
+
+                    <div class="appeal-top-header">
+
+                        <div class="appeal-student-profile">
+                            <div class="appeal-student-avatar">
+                                {{ a.student_name[0] }}
+                            </div>
+
+                            <div>
+                                <h4>{{ a.student_name }}</h4>
+                                <p>{{ a.matric_no }}</p>
+                            </div>
+                        </div>
+
+                        <div class="appeal-status-side">
+
+                            <span class="modern-status-badge
+                                {% if a.status == 'Pending' %}status-pending
+                                {% elif a.status == 'Approved' %}status-approved
+                                {% else %}status-rejected{% endif %}">
+                                
+                                {% if a.status == 'Pending' %}
+                                    <i class="fa-regular fa-clock"></i>
+                                {% elif a.status == 'Approved' %}
+                                    <i class="fa-solid fa-circle-check"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                {% endif %}
+
+                                {{ a.status }}
+                            </span>
+
+                            <small class="submitted-date">
+                                Submitted on
+                                {{ a.submitted_at.strftime('%d %B %Y %I.%M%p').replace('AM','am').replace('PM','pm') }}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="admin-detail-card mb-4">
+                        <h6 class="section-title">Student Information</h6>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <small class="detail-label">Student Name</small>
+                                <div class="detail-value">{{ a.student_name }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="detail-label">Matric Number</small>
+                                <div class="detail-value">{{ a.matric_no }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="detail-label">Block</small>
+                                <div class="detail-value">{{ a.block or '-' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="detail-label">Room Number</small>
+                                <div class="detail-value">{{ a.room_no or '-' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="detail-label">Email</small>
+                                <div class="detail-value">{{ a.student_email }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="section-title">Violation Details</h6>
+                        <div class="mb-3">
+                            <small class="detail-label">Violation Date</small>
+                            <div class="detail-value">
+                                {{ a.violation_date.strftime('%d %B %Y') if a.violation_date else '-' }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <small class="detail-label">Reason</small>
+                            <textarea class="form-control admin-reason-box" readonly>{{ a.reason }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="section-title">Supporting Document</h6>
+
+                        {% if a.appeal_file_path %}
+                            {% set ext = a.appeal_file_path.split('.')[-1].lower() %}
+
+                            {% if ext == 'pdf' %}
+                                <div class="document-preview-box">
+                                    <iframe
+                                        src="{{ url_for('admin_appeal_file', appeal_id=a.appeal_id) }}"
+                                        width="100%"
+                                        height="500"
+                                        style="border:none;"></iframe>
+                                </div>
+                            {% elif ext in ['jpg', 'jpeg', 'png'] %}
+                                <div class="document-preview-box text-center">
+                                    <img
+                                        src="{{ url_for('admin_appeal_file', appeal_id=a.appeal_id) }}"
+                                        class="img-fluid rounded"
+                                        style="max-height:500px;">
+                                </div>
+                            {% else %}
+                                <a href="{{ url_for('admin_appeal_file', appeal_id=a.appeal_id) }}"
+                                   target="_blank"
+                                   class="btn btn-outline-primary">
+                                    <i class="fa-solid fa-download me-1"></i> Download Document
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-muted">No supporting document uploaded.</p>
+                        {% endif %}
+                    </div>
+
+                    {% if a.status == 'Pending' %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Admin Signature</label>
+                        <div class="signature-wrapper">
+                            <canvas id="signatureCanvas{{ a.appeal_id }}" class="signature-canvas"></canvas>
+                            <div class="d-flex justify-content-between mt-2">
+                                <small class="text-muted">Sign above to approve this excuse letter</small>
+                                <button type="button"
+                                        class="btn btn-link text-danger p-0"
+                                        onclick="clearSignature('{{ a.appeal_id }}')">
+                                    Clear Signature
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif a.admin_signature %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Saved Admin Signature</label>
+                        <div class="signature-wrapper">
+                            <img src="{{ a.admin_signature }}" class="saved-signature-img" alt="Admin Signature">
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="review-metadata">
+
+                        <!-- ADMIN COMMENT SECTION -->
+                        {% if a.status == 'Pending' %}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Admin Comment
+                            </label>
+
+                            <textarea
+                                name="admin_comment"
+                                class="form-control modern-comment-box"
+                                rows="4"
+                                placeholder="Write comment if necessary..."></textarea>
+                        </div>
+
+                        {% else %}
+
+                        <div class="saved-comment-box">
+
+                            <div class="saved-comment-title">
+                                <i class="fa-regular fa-message"></i>
+                                Admin Comment
+                            </div>
+
+                            <div class="saved-comment-content">
+                                {% if a.admin_comment %}
+                                    {{ a.admin_comment }}
+                                {% else %}
+                                    No comment provided by administrator.
+                                {% endif %}
+                            </div>
+
+                            {% if a.formatted_reviewed_at %}
+                            <div class="reviewed-date-line">
+                                Reviewed At:
+                                {{ a.formatted_reviewed_at
+                                    .replace('AM','am')
+                                    .replace('PM','pm') }}
+                            </div>
+                            {% endif %}
+
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    {% if a.status == 'Pending' %}
+                    <button type="button"
+                            class="btn btn-danger px-4"
+                            onclick="submitAppealDecision('{{ a.appeal_id }}', 'Unexcused')">
+                        Reject
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-success px-4"
+                            onclick="submitAppealDecision('{{ a.appeal_id }}', 'Approved')">
+                        Approve
+                    </button>
+                    {% else %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('appealSearch').addEventListener('keyup', function () {
+    let value = this.value.toLowerCase();
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(value) ? '' : 'none';
+    });
+});
+
+function filterStatus(status, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.style.display =
+            (status === 'All' || row.dataset.status === status) ? '' : 'none';
+    });
+}
+
+const signaturePads = {};
+
+function initializeSignatureCanvas(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const rect = canvas.getBoundingClientRect();
+
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    ctx.scale(ratio, ratio);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#111827";
+
+    let drawing = false;
+    let hasSigned = false;
+
+    function getPos(e) {
+        const r = canvas.getBoundingClientRect();
+        if (e.touches && e.touches.length > 0) {
+            return {
+                x: e.touches[0].clientX - r.left,
+                y: e.touches[0].clientY - r.top
+            };
+        }
+        return {
+            x: e.clientX - r.left,
+            y: e.clientY - r.top
+        };
+    }
+
+    function startDraw(e) {
+        drawing = true;
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+    }
+
+    function draw(e) {
+        if (!drawing) return;
+        const pos = getPos(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        hasSigned = true;
+        e.preventDefault();
+    }
+
+    function endDraw() {
+        drawing = false;
+    }
+
+    canvas.addEventListener("mousedown", startDraw);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", endDraw);
+    canvas.addEventListener("mouseleave", endDraw);
+
+    canvas.addEventListener("touchstart", startDraw, { passive: false });
+    canvas.addEventListener("touchmove", draw, { passive: false });
+    canvas.addEventListener("touchend", endDraw);
+
+    signaturePads[canvasId] = {
+        canvas,
+        ctx,
+        hasSigned: () => hasSigned,
+        clear: () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasSigned = false;
+        },
+        toDataURL: () => canvas.toDataURL("image/png")
+    };
+}
+
+function clearSignature(appealId) {
+    const pad = signaturePads["signatureCanvas" + appealId];
+    if (pad) pad.clear();
+}
+
+function submitAppealDecision(appealId, decision) {
+    const modal = document.getElementById("appealModal" + appealId);
+    const form = modal.querySelector("form");
+    const decisionInput = document.getElementById("decisionInput" + appealId);
+    const signatureInput = document.getElementById("signatureInput" + appealId);
+    const pad = signaturePads["signatureCanvas" + appealId];
+
+    decisionInput.value = decision;
+
+    if (!pad || !pad.hasSigned()) {
+        alert("Please provide your digital signature before submitting.");
+        return;
+    }
+
+    signatureInput.value = pad.toDataURL();
+
+        form.submit();
+    }
+
+document.addEventListener("shown.bs.modal", function (event) {
+    const modal = event.target;
+    const canvas = modal.querySelector(".signature-canvas");
+    if (canvas && !signaturePads[canvas.id]) {
+        initializeSignatureCanvas(canvas.id);
+    }
+});
+</script>
+{% endblock %}

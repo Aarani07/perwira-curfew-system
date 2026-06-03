@@ -1,0 +1,309 @@
+/* =========================================================
+   REPORTS & ANALYTICS PAGE
+========================================================= */
+
+.reports-page {
+    padding: 20px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.reports-page h2 {
+    font-size: 28px;
+    color: #1e293b;
+}
+
+.reports-page p {
+    margin: 0;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    transition: 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.card-body {
+    padding: 24px;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+
+.summary-card {
+    position: relative;
+    background: white;
+}
+
+.summary-title {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 34px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.summary-change {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   SUMMARY ICONS
+========================================================= */
+
+.summary-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 5px;
+    font-size: 28px;
+}
+
+
+/* =========================================================
+   FILTER SECTION
+========================================================= */
+
+.filter-card {
+    background: white;
+}
+
+.form-select {
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid #dbe2ea;
+    font-size: 14px;
+    box-shadow: none !important;
+}
+
+.form-select:focus {
+    border-color: #3b82f6;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn {
+    border-radius: 12px;
+    height: 48px;
+    font-weight: 500;
+    transition: 0.3s ease;
+}
+
+.btn-primary {
+    background: #2563eb;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-danger {
+    border: none;
+}
+
+.btn-success {
+    border: none;
+}
+
+
+/* =========================================================
+   CHART SECTIONS
+========================================================= */
+
+.chart-card {
+    background: white;
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.chart-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+/* =========================================================
+   CHART WRAPPER FIX
+========================================================= */
+
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 3z0px;
+    padding: 10px;
+}
+
+.small-chart {
+    height: 220px;
+    max-width: 380px;
+    margin: 0 auto;
+}
+/* =========================================================
+   TABLE SECTION
+========================================================= */
+
+.table-card {
+    background: white;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-bottom: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 16px;
+    background: #f8fafc;
+}
+
+.table tbody td {
+    padding: 18px 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+}
+
+.table tbody tr:hover {
+    background: #f8fafc;
+}
+
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.badge {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   TABLE HEADER SECTION
+========================================================= */
+
+.table-header {
+    margin-bottom: 20px;
+}
+
+.table-header h5 {
+    margin-bottom: 5px;
+}
+
+
+/* =========================================================
+   RESPONSIVE DESIGN
+========================================================= */
+
+@media (max-width: 992px) {
+
+    .summary-value {
+        font-size: 28px;
+    }
+
+    .summary-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 20px;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .reports-page {
+        padding: 15px;
+    }
+
+    .card-body {
+        padding: 18px;
+    }
+
+    .reports-page h2 {
+        font-size: 24px;
+    }
+
+    .summary-value {
+        font-size: 24px;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 576px) {
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody tr {
+        display: block;
+        margin-bottom: 15px;
+        border-radius: 14px;
+        background: white;
+        padding: 10px;
+    }
+
+    .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        border: none;
+        padding: 10px;
+    }
+
+}
+
+#weekdayChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.analytics-table th,
+.analytics-table td {
+    text-align: center;
+    vertical-align: middle;
+}

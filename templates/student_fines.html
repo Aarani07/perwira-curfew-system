@@ -1,0 +1,243 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}
+Penalty Payment
+{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/fine_payment.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="fine-page">
+
+    <!-- HERO SECTION -->
+    <div class="fine-hero">
+
+        <div class="hero-left">
+
+            <h1>Penalty Payments</h1>
+
+            <p>
+                Review your disciplinary fines, monitor payment status,
+                and complete outstanding penalty payments securely.
+            </p>
+
+        </div>
+
+        <div class="hero-stats">
+
+            <!-- Pending -->
+            <div class="stat-card pending">
+
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+
+                <div>
+                    <h2>
+                        {{ fines | selectattr("payment_status", "equalto", "Payment Pending") | list | length }}
+                    </h2>
+                    <p>Pending Payment</p>
+                </div>
+
+            </div>
+
+            <!-- Successful -->
+            <div class="stat-card paid">
+
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+
+                <div>
+                    <h2>
+                        {{ fines | selectattr("payment_status", "equalto", "Paid") | list | length }}
+                    </h2>
+                    <p>Successful Payment</p>
+                </div>
+
+            </div>
+
+            <!-- Overdue -->
+            <div class="stat-card overdue">
+
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+
+                <div>
+                    <h2>
+                        {{ fines | selectattr("payment_status", "equalto", "Payment Overdue") | list | length }}
+                    </h2>
+                    <p>Overdue Payment</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PAYMENT TABLE -->
+    <div class="fine-table-container">
+
+        <div class="table-header">
+
+            <div>
+                <h2>Fine Payment Records</h2>
+                <p>
+                    View all disciplinary fine payment records assigned to your account.
+                </p>
+            </div>
+
+        </div>
+
+        {% if fines %}
+
+        <div class="table-responsive">
+
+            <table class="fine-table">
+
+                <thead>
+                    <tr>
+                        <th>Fine ID</th>
+                        <th>Amount</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Date Issued</th>
+                        <th>Action</th>
+                        <th>Receipt No</th>
+                        <th>Paid Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for fine in fines %}
+
+                    <tr>
+
+                        <td>#{{ fine.fine_id }}</td>
+
+                        <td class="amount">
+                            RM {{ "%.2f"|format(fine.amount) }}
+                        </td>
+
+                        <td>{{ fine.reason }}</td>
+
+                        <td>
+
+                            {% if fine.payment_status == 'Paid' %}
+
+                                <span class="badge bg-success">
+                                    Paid
+                                </span>
+
+                            {% elif fine.payment_status == 'Payment Due' %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Payment Due
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+                                    Payment Pending
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ fine.created_at }}
+                        </td>
+
+                        <td class="action-buttons">
+
+                            {% if fine.payment_status != 'Paid' %}
+
+                                <a href="{{ url_for('pay_fine', fine_id=fine.fine_id) }}"
+                                class="btn btn-dark btn-sm rounded-pill">
+
+                                    <i class="fa-solid fa-credit-card me-1"></i>
+                                    Pay Now
+
+                                </a>
+
+                            {% else %}
+
+                                <a href="{{ url_for('payment_receipt', fine_id=fine.fine_id) }}"
+                                class="btn btn-dark btn-sm rounded-pill">
+
+                                    <i class="fa-solid fa-file-invoice me-1"></i>
+                                    View Receipt
+
+                                </a>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if fine.receipt_no %}
+
+                                {{ fine.receipt_no }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if fine.paid_at %}
+
+                                {{ fine.paid_at }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <i class="fas fa-file-invoice-dollar"></i>
+
+            <h3>No fines found</h3>
+
+            <p>
+                You currently have no disciplinary fines assigned to your account.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

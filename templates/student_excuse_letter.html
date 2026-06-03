@@ -1,0 +1,563 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Excuse Letter Submission | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_user_list.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- MODERN PAGE HEADER -->
+    <div class="modern-page-header">
+
+        <div class="header-content">
+
+            <h1 class="modern-page-title">
+                Excuse Letter Submission
+            </h1>
+
+            <p class="modern-page-subtitle">
+                Submit official excuse letters for curfew violations,
+                request pre-approval for late return, and monitor the review status
+                of your disciplinary appeals.
+            </p>
+
+        </div>
+
+        <div class="header-action">
+
+            <button class="modern-submit-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#submitExcuseModal">
+
+                <span class="btn-icon">
+                    <i class="fa-solid fa-plus"></i>
+                </span>
+
+                <span>
+                    Submit Excuse Letter
+                </span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Submitted Letters -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-1">My Submitted Excuse Letters</h5>
+            <p class="text-muted mb-0">View your submission history and approval status</p>
+        </div>
+
+        <div class="card-body px-4 pb-4">
+            {% if appeals and appeals|length > 0 %}
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                        <th>Submitted Date</th>
+                        <th>Violation Date</th>
+                        <th>Reason</th>
+                        <th>Document</th>
+                        <th>Status</th>
+                        <th>Admin Comment</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for a in appeals %}
+                    <tr>
+
+                        <!-- Submitted Date -->
+                        <td>
+                            {{ a.submitted_at.strftime('%d %B %Y %I.%M%p') if a.submitted_at else '-' }}
+                        </td>
+
+                        <!-- NEW VIOLATION DATE COLUMN -->
+                        <td>
+
+                            {% if a.submission_type == 'violation' %}
+
+                                {{ a.violation_date.strftime('%d %B %Y') if a.violation_date else '-' }}
+
+                            {% elif a.submission_type == 'pre_approval' %}
+
+                                {{ a.planned_return_date.strftime('%d %B %Y') if a.planned_return_date else '-' }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Reason -->
+                        <td>{{ a.reason if a.reason else '-' }}</td>
+
+                        <!-- Document -->
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill"
+                                data-id="{{ a.appeal_id }}"
+                                data-type="{{ a.submission_type }}"
+                                data-reason="{{ a.reason | replace('\n',' ') | e }}"
+                                data-date="{{ a.submitted_at.strftime('%d %B %Y %I:%M %p') if a.submitted_at else '-' }}"
+                                data-status="{{ a.status }}"
+                                data-comment="{{ a.admin_comment | default('', true) | e }}"
+                                data-file="{% if a.appeal_file_path %}{{ url_for('static', filename=a.appeal_file_path) }}{% endif %}"
+                                onclick="openDetailModalFromBtn(this)">
+
+                                <i class="fa-solid fa-eye me-1"></i>View
+                            </button>
+                        </td>
+
+                        <!-- Status -->
+                        <td>
+                            {% if a.status == 'Pending' %}
+                                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Pending</span>
+                            {% elif a.status == 'Approved' %}
+                                <span class="badge bg-success px-3 py-2 rounded-pill">Approved</span>
+                            {% elif a.status == 'Unexcused' %}
+                                <span class="badge bg-danger px-3 py-2 rounded-pill">Unexcused</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Admin Comment -->
+                        <td>{{ a.admin_comment if a.admin_comment else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3 fs-1 text-muted">
+                    <i class="fa-solid fa-file-circle-xmark"></i>
+                </div>
+                <h5 class="fw-bold">No excuse letters submitted yet</h5>
+                <p class="text-muted">Submit an excuse letter when you need to appeal a curfew violation or request pre-approval.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade appeal-modal" id="detailModal" tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+
+        <div class="modal-content excuse-modal-content">
+
+            <!-- HEADER -->
+            <div class="modal-header excuse-modal-header">
+
+                <div>
+
+                    <h5 class="modal-title excuse-modal-title">
+                        Excuse Letter Details
+                    </h5>
+
+                    <p class="modal-subtitle">
+                        View submitted appeal information and supporting evidence
+                    </p>
+
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body excuse-modal-body">
+
+                <!-- TOP BADGES -->
+                <div class="excuse-top-section">
+
+                    <div class="excuse-type-badge">
+
+                        <i class="fas fa-file-alt"></i>
+
+                        <span id="d_type"></span>
+
+                    </div>
+
+                    <div id="d_status_badge"
+                        class="excuse-status-badge">
+
+                        <span id="d_status"></span>
+
+                    </div>
+
+                </div>
+
+                <!-- INFO GRID -->
+                <div class="excuse-info-grid">
+
+                    <div class="info-card">
+
+                        <label>
+                            Submitted Date
+                        </label>
+
+                        <p id="d_date"></p>
+
+                    </div>
+
+                </div>
+
+                <!-- REASON -->
+                <div class="content-section">
+
+                    <h6>
+                        <i class="fas fa-align-left"></i>
+                        Reason
+                    </h6>
+
+                    <div class="content-box" id="d_reason"></div>
+
+                </div>
+
+                <!-- ADMIN COMMENT -->
+                <div class="content-section">
+
+                    <h6>
+                        <i class="fas fa-user-shield"></i>
+                        Admin Comment
+                    </h6>
+
+                    <div class="content-box" id="d_comment"></div>
+
+                </div>
+
+                <!-- DOCUMENT -->
+                <div class="content-section">
+
+                    <h6>
+                        <i class="fas fa-paperclip"></i>
+                        Supporting Document
+                    </h6>
+
+                    <!-- NO FILE -->
+                    <div id="noDocumentMsg"
+                        class="content-box d-none">
+
+                        No supporting document uploaded.
+
+                    </div>
+
+                    <!-- PDF PREVIEW -->
+                    <div id="documentViewerWrapper">
+
+                        <iframe id="d_file"
+                            class="document-frame">
+                        </iframe>
+
+                    </div>
+
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="modal-footer border-0 px-0 pb-0">
+
+                    <button type="button"
+                            class="btn btn-light px-4"
+                            data-bs-dismiss="modal">
+
+                        Close
+
+                    </button>
+
+                    <button type="button"
+                            id="deleteBtn"
+                            class="btn btn-danger px-4 d-none"
+                            onclick="deleteAppeal()">
+
+                        <i class="fa-solid fa-trash me-2"></i>
+
+                        Delete Appeal
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ONE MODAL FOR BOTH FORMS -->
+<div class="modal fade appeal-modal" id="submitExcuseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Submit Excuse Letter</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body pt-3">
+
+                <!-- Modal Tabs -->
+                <div class="row g-0 border rounded-4 overflow-hidden mb-4">
+                    <div class="col-md-6">
+                        <button type="button" class="excuse-tab-btn active" id="preApprovalTabBtn" onclick="switchExcuseTab('pre_approval')">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            <div>
+                                <div class="tab-title">Pre-Approved Late Come-In</div>
+                                <div class="tab-subtitle">Request permission before late arrival</div>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="excuse-tab-btn" id="violationTabBtn" onclick="switchExcuseTab('violation')">
+                            <i class="fa-regular fa-circle-xmark me-2"></i> Violation Excuse Letter
+                            <small>Submit excuse for existing violations</small>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pre Approval Form -->
+                <div id="preApprovalPane" class="excuse-tab-pane active">
+                    <form method="POST" action="{{ url_for('student_excuse_letter') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="submission_type" value="pre_approval">
+
+                        <div class="notice-box mb-4">
+                            <div class="d-flex gap-3">
+                                <div class="notice-icon">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                </div>
+                                <div>
+                                    <div class="notice-title">Important Notice</div>
+                                    <div class="notice-text">
+                                        Submit this request at least 24 hours before your planned late arrival.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Planned Late Arrival Date <span class="text-danger">*</span></label>
+                                <input type="date" name="planned_return_date" class="form-control custom-input" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Expected Return Time <span class="text-danger">*</span></label>
+                                <input type="time" name="expected_return_time" class="form-control custom-input" required>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Reason for Late Return <span class="text-danger">*</span></label>
+                                <textarea name="reason" rows="5" class="form-control custom-textarea" placeholder="Please explain your late return..." required></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Supporting Document (Optional)</label>
+                                <div class="upload-box">
+                                    <div class="upload-icon">
+                                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                    </div>
+                                    <div class="upload-title">Upload your file</div>
+                                    <div class="upload-subtitle">PDF, JPG, PNG, DOC</div>
+
+                                    <input type="file" name="supporting_document"
+                                        class="form-control upload-input"
+                                        accept=".pdf,.jpg,.jpeg,.png,.doc">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary submit-btn">
+                                Submit Pre-Approval Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Violation Form -->
+                <div id="violationPane" class="excuse-tab-pane">
+                    <form method="POST" action="{{ url_for('student_excuse_letter') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="submission_type" value="violation">
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Select Violation <span class="text-danger">*</span></label>
+                                <select name="violation_id" class="form-select" required>
+                                    <option value="">-- Select violation --</option>
+                                    {% if violations %}
+                                        {% for v in violations %}
+                                        <option value="{{ v.violation_id }}">
+                                            {{ v.violation_date if v.violation_date else 'No date' }}
+                                            {% if v.detected_time %}
+                                                - {{ v.detected_time }}
+                                            {% endif %}
+                                            {% if v.violation_type %}
+                                                - {{ v.violation_type }}
+                                            {% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Reason / Explanation <span class="text-danger">*</span></label>
+                                <textarea name="reason" rows="5" class="form-control custom-textarea" placeholder="Enter your explanation here..." required></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Supporting Document</label>
+                                <input type="file" name="supporting_document" class="form-control custom-input" accept=".pdf,.jpg,.jpeg,.png,.doc">
+                                <small class="text-muted">Accepted formats: PDF, JPG, PNG, DOC</small>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                Submit Excuse Letter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchExcuseTab(tab) {
+    const preBtn = document.getElementById("preApprovalTabBtn");
+    const vioBtn = document.getElementById("violationTabBtn");
+    const prePane = document.getElementById("preApprovalPane");
+    const vioPane = document.getElementById("violationPane");
+
+    if (tab === "pre_approval") {
+        preBtn.classList.add("active");
+        vioBtn.classList.remove("active");
+        prePane.classList.add("active");
+        vioPane.classList.remove("active");
+    } else {
+        vioBtn.classList.add("active");
+        preBtn.classList.remove("active");
+        vioPane.classList.add("active");
+        prePane.classList.remove("active");
+    }
+}
+</script>
+<script>
+let selectedAppealId = null;
+
+function openDetailModalFromBtn(btn) {
+    const modalEl = document.getElementById("detailModal");
+
+    selectedAppealId = btn.dataset.id;
+
+    // =========================================
+    // GET DATA
+    // =========================================
+    const type = btn.dataset.type || "-";
+    const reason = btn.dataset.reason || "-";
+    const date = btn.dataset.date || "-";
+    const status = btn.dataset.status || "-";
+    const comment = btn.dataset.comment || "No admin comment provided.";
+    const file = btn.dataset.file || "";
+
+    document.getElementById("d_type").innerText = btn.dataset.type || "-";
+    document.getElementById("d_reason").innerText = btn.dataset.reason || "-";
+    document.getElementById("d_date").innerText = btn.dataset.date || "-";
+    document.getElementById("d_status").innerText = btn.dataset.status || "-";
+    document.getElementById("d_comment").innerText = btn.dataset.comment || "-";
+
+    // =========================================
+    // STATUS BADGE STYLING
+    // =========================================
+    const statusBadge = document.getElementById("d_status_badge");
+
+    statusBadge.classList.remove(
+        "approved",
+        "pending",
+        "rejected"
+    );
+
+    if (status === "Approved") {
+        statusBadge.classList.add("approved");
+    } else if (status === "Pending") {
+        statusBadge.classList.add("pending");
+    } else {
+        statusBadge.classList.add("rejected");
+    }
+    
+    const iframe = document.getElementById("d_file");
+    const noDoc = document.getElementById("noDocumentMsg");
+    const viewerWrapper = document.getElementById(
+        "documentViewerWrapper"
+    );
+
+    if (file) {
+        iframe.src = file;
+        viewerWrapper.classList.remove("d-none");
+        noDoc.classList.add("d-none");
+    } else {
+        iframe.src = "";
+        viewerWrapper.classList.add("d-none");
+        noDoc.classList.remove("d-none");
+    }
+
+    const deleteBtn = document.getElementById("deleteBtn");
+
+    // ✅ ONLY SHOW DELETE IF NOT APPROVED
+    if (
+        btn.dataset.status === "Approved" ||
+        btn.dataset.status === "Unexcused"
+    ) {
+        deleteBtn.classList.add("d-none");
+    } else {
+        deleteBtn.classList.remove("d-none");
+    }
+
+    let modal = bootstrap.Modal.getInstance(modalEl);
+    if (!modal) {
+        modal = new bootstrap.Modal(modalEl);
+    }
+    modal.show();
+}
+</script>
+<script>
+function deleteAppeal() {
+    if (!selectedAppealId) return;
+
+    if (!confirm("Are you sure you want to delete this excuse letter?")) return;
+
+    fetch(`/student/delete-appeal/${selectedAppealId}`, {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Deleted successfully!");
+            location.reload();
+        } else {
+            alert(data.error || "Delete failed");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error deleting appeal");
+    });
+}
+</script>
+{% endblock %}

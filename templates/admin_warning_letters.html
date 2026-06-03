@@ -1,0 +1,228 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Warning Letter Management | PRCDS{% endblock %}
+
+{% block dashboard_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_list.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/warning_letter.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_base.css') }}">
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Warning Letter Management</h3>
+            <p class="text-muted mb-0">
+                Issue and manage warning letters for repeated curfew violations
+            </p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Total Letters</p>
+                    <h3 class="fw-bold mb-0">{{ total_letters if total_letters is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Acknowledged</p>
+                    <h3 class="fw-bold mb-0">{{ acknowledged_letters if acknowledged_letters is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Pending</p>
+                    <h3 class="fw-bold mb-0">{{ pending_letters if pending_letters is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Students Warned</p>
+                    <h3 class="fw-bold mb-0">{{ warned_students if warned_students is defined else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-1">Issued Warning Letters</h5>
+            <p class="text-muted mb-0">Monitor all issued warning letters and acknowledgement status</p>
+        </div>
+
+        <div class="card-body px-4 pb-4">
+            {% if warning_letters and warning_letters|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Letter ID</th>
+                            <th>Student</th>
+                            <th>Block/Room</th>
+                            <th>Violation Date</th>
+                            <th>Generated Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for w in warning_letters %}
+                    <tr>
+
+                        <!-- LETTER ID -->
+                        <td><strong>WL{{ "%03d"|format(w.warning_id) }}</strong></td>
+
+                        <!-- STUDENT -->
+                        <td>
+                            <strong>{{ w.student_name }}</strong><br>
+                            <small class="text-muted">{{ w.matric_no }}</small>
+                        </td>
+
+                        <!-- BLOCK / ROOM -->
+                        <td>{{ w.block_room if w.block_room else '-' }}</td>
+
+                        <!-- VIOLATION DATE -->
+                        <td>
+                            {% if w.violation_date %}
+                                {{ w.violation_date.strftime('%d %B %Y') }}<br>
+                                <small class="text-muted">
+                                    {{ w.violation_time if w.violation_time else '-' }}
+                                </small>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <!-- GENERATED DATE -->
+                        <td>
+                            {{ w.issued_at.strftime('%d %B %Y') if w.issued_at else '-' }}
+                        </td>
+
+                        <!-- STATUS -->
+                        <td>
+
+                            {% if w.warning_letter_status == 'Draft' %}
+                                <span class="status-badge status-draft">Draft</span>
+
+                            {% elif w.warning_letter_status == 'Verified' %}
+                                <span class="status-badge status-ack">Verified</span>
+
+                            {% elif w.warning_letter_status == 'Sent to Student' %}
+                                <span class="status-badge status-sent">Sent to Student</span>
+
+                            {% elif w.warning_letter_status == 'Confirmed' %}
+                                <span class="status-badge status-ack">Confirmed</span>
+
+                            {% else %}
+                                <span class="status-badge status-other">
+                                    {{ w.warning_letter_status }}
+                                </span>
+                            {% endif %}
+
+                        </td>
+
+                        <!-- ACTION -->
+                        <td>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-primary rounded-pill"
+                                data-bs-toggle="modal"
+                                data-bs-target="#viewWarningModal{{ w.warning_id }}">
+                                <i class="fa-solid fa-eye me-1"></i>View
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <!-- MODAL (KEEP THIS SAME) -->
+                    <div class="modal fade" id="viewWarningModal{{ w.warning_id }}" tabindex="-1">
+                        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                            <div class="modal-content">
+
+                            {% set letter = w %}
+                            {% include "warning_letter_modal.html" %}
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3 fs-1 text-muted">
+                    <i class="fa-solid fa-file-circle-check"></i>
+                </div>
+                <h5 class="fw-bold">No warning letters issued yet</h5>
+                <p class="text-muted">There are currently no warning letters in the system.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<script>
+function signLetter(id) {
+    fetch(`/admin/sign-letter/${id}`, { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Letter signed!");
+            location.reload();
+        }
+    });
+}
+
+function sendLetter(id) {
+    const btn = event.target;
+
+    btn.disabled = true;
+    btn.innerHTML = "Sending...";
+
+    fetch(`/admin/send-letter/${id}`, { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+
+            btn.innerHTML = "✔ Sent!";
+            btn.classList.remove("btn-success");
+            btn.classList.add("btn-secondary");
+
+            setTimeout(() => location.reload(), 1000);
+
+        } else {
+            throw new Error("Send failed");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+
+        btn.disabled = false;
+        btn.innerHTML = "📩 Send to Student";
+
+        alert("Failed to send letter. Check server error.");
+    });
+}
+</script>
+{% endblock %}

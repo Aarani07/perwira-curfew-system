@@ -1,0 +1,403 @@
+/* ================= CAMERA MODAL ================= */
+
+/* OVERLAY */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2147483647;
+    justify-content: center;
+    align-items: center;
+}
+
+/* MODAL CONTAINER */
+.camera-modal {
+    background: #ffffff;
+    width: 900px;
+    max-width: 95%;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: fadeInUp 0.25s ease;
+}
+
+/* HEADER */
+.camera-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.camera-header h6 {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* BODY */
+.camera-body {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 20px;
+}
+
+/* CAMERA BOX */
+.camera-box {
+    background: #0b1220;
+    border-radius: 12px;
+    height: 320px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* VIDEO */
+#webcam-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background: #000;
+    z-index: 1;
+}
+
+/* FACE GUIDE OVERLAY */
+.face-guide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 220px;
+    border: 3px solid #0d6efd;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* RESULT PANEL */
+.result-box {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    height: 320px;
+    overflow-y: auto;
+    background: #fff;
+}
+
+/* PLACEHOLDER */
+.result-placeholder {
+    text-align: center;
+    color: #6b7280;
+    margin-top: 80px;
+}
+
+/* SUCCESS */
+.result-success {
+    background: #ecfdf5;
+    border-radius: 10px;
+    padding: 15px;
+    color: #111827;
+}
+
+/* FAILED */
+.result-failed {
+    background: #fef2f2;
+    border-radius: 10px;
+    padding: 15px;
+    color: #111827;
+}
+
+/* PROFILE IMAGE */
+.profile-img {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 4px solid #22c55e;
+    object-fit: cover;
+}
+
+/* IMAGE INSIDE RESULT */
+#resImg {
+    max-width: 120px;
+    max-height: 120px;
+    border-radius: 10px;
+    display: block;
+    margin: 0 auto;
+}
+
+/* FOOTER */
+.camera-footer {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* PREVENT BACKGROUND SCROLL WHEN MODAL OPEN */
+body.camera-open {
+    overflow: hidden;
+}
+
+/* QR MODE GUIDE */
+.qr-guide {
+    width: 180px;
+    height: 180px;
+    border-radius: 8px;
+    border-style: dashed;
+}
+
+/* ================= STUDENT QR MODAL ================= */
+
+.student-qr-modal {
+    width: 420px;
+    max-width: 95vw;
+    max-height: 90vh;
+    padding: 18px;
+    border-radius: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.student-qr-content {
+    text-align: center;
+}
+
+.student-qr-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: #e8f0ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+}
+
+.student-qr-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #111827;
+}
+
+.student-qr-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 14px;
+}
+
+.student-qr-frame {
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 12px;
+    background: #f7f8ff;
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.student-qr-frame::before,
+.student-qr-frame::after {
+    content: "";
+    position: absolute;
+    width: 28px;
+    height: 28px;
+}
+
+.student-qr-frame::before {
+    top: 8px;
+    left: 8px;
+    border-top: 4px solid #2563eb;
+    border-left: 4px solid #2563eb;
+    border-top-left-radius: 10px;
+}
+
+.student-qr-frame::after {
+    bottom: 8px;
+    right: 8px;
+    border-bottom: 4px solid #2563eb;
+    border-right: 4px solid #2563eb;
+    border-bottom-right-radius: 10px;
+}
+
+.student-qr-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 210px;
+}
+
+#studentQrImage {
+    width: 190px;
+    height: 190px;
+    object-fit: contain;
+    display: block;
+}
+
+.student-qr-timer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.student-qr-timer-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4b5563;
+}
+
+.student-qr-timer-right {
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.student-qr-progress {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.student-qr-progress-bar {
+    height: 100%;
+    width: 100%;
+    background: #2563eb;
+    border-radius: 999px;
+    transition: width 1s linear;
+}
+
+.student-qr-note {
+    color: #6b7280;
+    font-size: 12px;
+    margin-bottom: 14px;
+}
+
+.student-qr-info-card {
+    background: #f9fafb;
+    border-radius: 14px;
+    padding: 14px;
+    text-align: left;
+}
+
+.student-qr-info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eceff3;
+}
+
+.student-qr-info-row:last-child {
+    border-bottom: none;
+}
+
+.student-qr-info-row .label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.student-qr-info-row .value {
+    color: #111827;
+    font-weight: 700;
+    text-align: right;
+    max-width: 58%;
+    word-break: break-word;
+}
+
+/* nicer scrollbar inside modal */
+.student-qr-modal::-webkit-scrollbar {
+    width: 6px;
+}
+
+.student-qr-modal::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+
+@media (max-height: 800px) {
+    .student-qr-modal {
+        max-height: 88vh;
+        padding: 16px;
+    }
+
+    .student-qr-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
+        margin-bottom: 8px;
+    }
+
+    .student-qr-title {
+        font-size: 17px;
+    }
+
+    .student-qr-subtitle {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    #studentQrImage {
+        width: 170px;
+        height: 170px;
+    }
+
+    .student-qr-box {
+        min-height: 190px;
+        padding: 12px;
+    }
+
+    .student-qr-timer-right {
+        font-size: 20px;
+    }
+
+    .student-qr-info-card {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .student-qr-modal {
+        width: 95vw;
+        max-height: 88vh;
+        padding: 14px;
+    }
+
+    #studentQrImage {
+        width: 160px;
+        height: 160px;
+    }
+
+    .student-qr-box {
+        min-height: 180px;
+        padding: 10px;
+    }
+
+    .student-qr-timer-right {
+        font-size: 18px;
+    }
+
+    .student-qr-info-row {
+        font-size: 14px;
+    }
+}
