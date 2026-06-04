@@ -7,11 +7,11 @@ from flask import g
 load_dotenv()
 
 DB_CONFIG = {
-    "host": os.getenv("MYSQLHOST"),
-    "port": int(os.getenv("MYSQLPORT", 3306)),
-    "user": os.getenv("MYSQLUSER"),
-    "password": os.getenv("MYSQLPASSWORD"),
-    "db": os.getenv("MYSQLDATABASE"),
+    "host": os.getenv("DB_HOST"),
+    "port": int(os.getenv("DB_PORT", 3306)),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASS"),
+    "db": os.getenv("DB_NAME"),
     "cursorclass": pymysql.cursors.DictCursor,
     "autocommit": True,
     "charset": "utf8mb4",
@@ -24,7 +24,13 @@ def get_db():
         try:
             g.db_conn = pymysql.connect(**DB_CONFIG)
         except Exception as e:
-            print(f"[DB ERROR] {e}")
+            import traceback
+
+            print("========== DATABASE ERROR ==========")
+            print(str(e))
+            traceback.print_exc()
+            print("===================================")
+
             g.db_conn = None
     return g.db_conn
 
