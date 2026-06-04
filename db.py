@@ -7,11 +7,11 @@ from flask import g
 load_dotenv()
 
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": int(os.getenv("DB_PORT", 3306)),
-    "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASS", ""),
-    "db": os.getenv("DB_NAME", "perwira_curfew_system"),
+    "host": os.getenv("MYSQLHOST"),
+    "port": int(os.getenv("MYSQLPORT", 3306)),
+    "user": os.getenv("MYSQLUSER"),
+    "password": os.getenv("MYSQLPASSWORD"),
+    "db": os.getenv("MYSQLDATABASE"),
     "cursorclass": pymysql.cursors.DictCursor,
     "autocommit": True,
     "charset": "utf8mb4",
