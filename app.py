@@ -47,7 +47,7 @@ from Crypto.Util.Padding import pad, unpad
 # CREATE APP (THIS MUST COME FIRST)
 # =========================
 app = Flask(__name__)
-
+app.config["SECRET_KEY"] = "f7f0a1855e98d7726d138f93418b7f31f3cd037fee119a027860c99a8dda3bb5"
 app.permanent_session_lifetime = timedelta(minutes=15)
 
 AES_KEY = hashlib.sha256(
@@ -223,7 +223,11 @@ def decrypt_embedding(encrypted_blob):
 # ======================================================
 def create_app():
     app = Flask(__name__, template_folder="templates", static_folder="static")
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
+    app.config["SECRET_KEY"] = os.getenv(
+    "SECRET_KEY",
+    "f7f0a1855e98d7726d138f93418b7f31f3cd037fee119a027860c99a8dda3bb5"
+)
+
     app.config.update(
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SECURE=False,  # True after HTTPS deployment
@@ -6001,6 +6005,6 @@ def create_app():
 # ======================================================
 # RUN
 # ======================================================
+app = create_app()
 if __name__ == "__main__":
-    app = create_app()
     app.run(host="0.0.0.0", port=5000, debug=True)
