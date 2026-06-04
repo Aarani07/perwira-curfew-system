@@ -2947,7 +2947,8 @@ def create_app():
         # ====================================================
         cur.execute(f"""
             SELECT 
-                MONTHNAME(v.violation_date) AS month,
+                SELECT
+                    DATE_FORMAT(v.violation_date, '%b %Y') AS month,
 
                 COUNT(*) AS total_violations,
 
@@ -2983,9 +2984,13 @@ def create_app():
             {date_condition}
             {block_condition}
 
-            GROUP BY MONTH(v.violation_date)
+            GROUP BY
+                YEAR(v.violation_date),
+                MONTH(v.violation_date)
 
-            ORDER BY MONTH(v.violation_date)
+            ORDER BY
+                YEAR(v.violation_date),
+                MONTH(v.violation_date)
         """)
 
         monthly_results = cur.fetchall()
@@ -3034,9 +3039,12 @@ def create_app():
             {date_condition}
             {block_condition}
 
-            GROUP BY DAYOFWEEK(v.violation_date)
+            GROUP BY 
+                DAYOFWEEK(v.violation_date)
+                DAYNAME(v.violation_date)
 
-            ORDER BY DAYOFWEEK(v.violation_date)
+            ORDER BY 
+                DAYOFWEEK(v.violation_date)
         """)
 
         weekday_results = cur.fetchall()
