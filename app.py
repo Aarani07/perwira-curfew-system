@@ -2946,9 +2946,11 @@ def create_app():
         # MONTHLY VIOLATIONS CHART
         # ====================================================
         cur.execute(f"""
-                SELECT
-                    DATE_FORMAT(v.violation_date, '%b %Y') AS month,
-
+            SELECT
+                YEAR(v.violation_date) AS year_num,
+                    MONTH(v.violation_date) AS month_num,
+                    DATE_FORMAT(MIN(v.violation_date), '%b %Y') AS month, 
+                                       
                 COUNT(*) AS total_violations,
 
                 SUM(
@@ -2970,8 +2972,8 @@ def create_app():
                 (
                     SELECT COUNT(*)
                     FROM warning_letters wl
-                    WHERE MONTH(wl.issued_at) = MONTH(v.violation_date)
-                    AND YEAR(wl.issued_at) = YEAR(v.violation_date)
+                    WHERE MONTH(wl.issued_at) = MONTH(MIN(v.violation_date))
+                    AND YEAR(wl.issued_at) = YEAR(MIN(v.violation_date))
                 ) AS warning_letters
 
             FROM violations v
