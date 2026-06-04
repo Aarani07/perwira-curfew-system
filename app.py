@@ -113,7 +113,7 @@ def send_otp_email(to_email, otp):
     host = "smtp.gmail.com"
     port = 587
     user = os.getenv("EMAIL_USER")
-    password = os.getenv("EMAIL_PASS")
+    password = os.getenv("EMAIL_PASSWORD")
 
     print("SMTP USING →", host, port, user)
 
@@ -6001,8 +6001,6 @@ def create_app():
 # ======================================================
 # RUN
 # ======================================================
-app = create_app()
-
 if __name__ == "__main__":
     app = create_app()
     app.run(host="0.0.0.0", port=5000, debug=True)
