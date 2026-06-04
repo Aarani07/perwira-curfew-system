@@ -2946,7 +2946,6 @@ def create_app():
         # MONTHLY VIOLATIONS CHART
         # ====================================================
         cur.execute(f"""
-            SELECT 
                 SELECT
                     DATE_FORMAT(v.violation_date, '%b %Y') AS month,
 
@@ -3040,7 +3039,7 @@ def create_app():
             {block_condition}
 
             GROUP BY 
-                DAYOFWEEK(v.violation_date)
+                DAYOFWEEK(v.violation_date),
                 DAYNAME(v.violation_date)
 
             ORDER BY 
