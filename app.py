@@ -84,6 +84,23 @@ def session_management():
 
     session["last_activity"] = now.isoformat()
 
+@app.route("/test-time")
+def test_time():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            NOW() as now_time,
+            @@session.time_zone as session_tz,
+            @@global.time_zone as global_tz
+    """)
+
+    result = cur.fetchone()
+    cur.close()
+
+    return str(result)
+
 # =========================
 # CONFIG / CONSTANTS
 # =========================
