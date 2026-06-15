@@ -23,10 +23,16 @@ def get_db():
     if "db_conn" not in g:
         try:
             g.db_conn = pymysql.connect(**DB_CONFIG)
+
+            # Set Malaysia timezone (UTC+8)
+            with g.db_conn.cursor() as cur:
+                cur.execute("SET time_zone = '+08:00'")
+
             print("HOST =", DB_CONFIG["host"])
             print("PORT =", DB_CONFIG["port"])
             print("DB =", DB_CONFIG["db"])
             print("USER =", DB_CONFIG["user"])
+            
         except Exception as e:
             import traceback
 

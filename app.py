@@ -21,6 +21,7 @@ import pdfkit
 import stripe
 import requests
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from functools import wraps
 from flask import (
     Flask, render_template, request, redirect,
@@ -62,7 +63,7 @@ def session_management():
 
     session.permanent = True
 
-    now = datetime.utcnow()
+    now = malaysia_now()
 
     if "last_activity" in session:
 
@@ -96,6 +97,11 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 def allowed_appeal_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_APPEAL_EXTENSIONS
+
+def malaysia_now():
+    return datetime.now(
+        ZoneInfo("Asia/Kuala_Lumpur")
+    )
 
 # ======================================================
 # PASSWORD VALIDATION
