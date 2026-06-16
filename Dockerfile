@@ -2,7 +2,10 @@ FROM python:3.11
 
 WORKDIR /app
 
+ENV TZ=Asia/Kuala_Lumpur
+
 RUN apt-get update && apt-get install -y \
+    tzdata \
     build-essential \
     cmake \
     libgl1 \
@@ -19,4 +22,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD gunicorn app:app --bind 0.0.0.0:$PORT
+CMD gunicorn --bind 0.0.0.0:${PORT:-8080} app:app
