@@ -2,10 +2,7 @@ FROM python:3.11
 
 WORKDIR /app
 
-ENV TZ=Asia/Kuala_Lumpur
-
 RUN apt-get update && apt-get install -y \
-    tzdata \
     build-essential \
     cmake \
     libgl1 \
