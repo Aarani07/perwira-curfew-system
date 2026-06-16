@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     libxrender-dev
 
+ENV TZ=Asia/Singapore
+
 COPY requirements.txt .
 
 RUN pip install --upgrade pip

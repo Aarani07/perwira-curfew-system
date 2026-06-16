@@ -63,7 +63,7 @@ def session_management():
 
     session.permanent = True
 
-    now = malaysia_now()
+    now = datetime.now()
 
     if "last_activity" in session:
 
@@ -84,23 +84,6 @@ def session_management():
 
     session["last_activity"] = now.isoformat()
 
-@app.route("/test-time")
-def test_time():
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute("""
-        SELECT
-            NOW() as now_time,
-            @@session.time_zone as session_tz,
-            @@global.time_zone as global_tz
-    """)
-
-    result = cur.fetchone()
-    cur.close()
-
-    return str(result)
-
 # =========================
 # CONFIG / CONSTANTS
 # =========================
@@ -114,11 +97,6 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 def allowed_appeal_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_APPEAL_EXTENSIONS
-
-def malaysia_now():
-    return datetime.now(
-        ZoneInfo("Asia/Kuala_Lumpur")
-    )
 
 # ======================================================
 # PASSWORD VALIDATION
@@ -3231,6 +3209,7 @@ def create_app():
     def security_verify_face():
         data = request.get_json()
         image_data = data.get("image")
+        print("SERVER TIME:", datetime.now())
         
         if not image_data:
             return jsonify({
@@ -3403,7 +3382,7 @@ def create_app():
             # =========================
             # Determine lateness
             # =========================
-            now = datetime.malaysia_now()
+            now = datetime.now()
             detected_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
             if now.hour < 6:
@@ -4133,7 +4112,7 @@ def create_app():
             # =========================================
             # DETERMINE LATENESS
             # =========================================
-            now = datetime.malaysia_now()
+            now = datetime.now()
 
             if now.hour < 6:
                 curfew_base_date = now - timedelta(days=1)
