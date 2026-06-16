@@ -852,7 +852,7 @@ def create_app():
         if not active_user:
             return
 
-        now = datetime.now()
+        now = malaysia_now()
 
         if "last_activity" in session:
 
@@ -1038,7 +1038,7 @@ def create_app():
 
             session["active_role"] = role
 
-            session["last_activity"] = datetime.now().isoformat()
+            session["last_activity"] = malaysia_now().isoformat()
 
             # =========================================
             # SECURE SESSION
@@ -3414,7 +3414,7 @@ def create_app():
             curfew_time = curfew_base_date.replace(hour=22, minute=0, second=0, microsecond=0)
 
             # Use actual detected timestamp date
-            violation_date = datetime.now().date()
+            violation_date = malaysia_now().date()
 
             late_minutes = 0
             is_late = now > curfew_time
@@ -4148,7 +4148,7 @@ def create_app():
             )
 
             # Use actual detected timestamp date
-            violation_date = datetime.now().date()
+            violation_date = malaysia_now().date()
 
             late_minutes = 0
             is_late = now > curfew_time
