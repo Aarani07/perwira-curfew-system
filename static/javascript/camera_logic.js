@@ -180,9 +180,7 @@ async function startCamera() {
         }
 
         const constraints = {
-            video: {
-                facingMode: currentFacingMode
-            },
+            video: true,
             audio: false
         };
 
