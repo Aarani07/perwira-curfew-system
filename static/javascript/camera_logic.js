@@ -186,7 +186,27 @@ async function startCamera() {
             audio: false
         };
 
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        let stream;
+
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: { exact: currentFacingMode }
+                },
+                audio: false
+            });
+        }
+        catch (e) {
+
+            console.warn(
+                "Requested camera not available, using default camera."
+            );
+
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false
+            });
+        }
 
         videoStream = stream;
 

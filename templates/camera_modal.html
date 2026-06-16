@@ -176,3 +176,7 @@
 </div>
 
 {% endif %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='javascript/camera_logic.js') }}"></script>
+{% endblock %}
