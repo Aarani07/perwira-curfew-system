@@ -1,5 +1,5 @@
-let videoStream = null;
-let mode = "face";
+window.videoStream = null;
+window.mode = "face";
 let detecting = false;
 let currentFacingMode = "user"; // front camera
 let qrRefreshTimer = null;
@@ -181,7 +181,7 @@ async function startCamera() {
 
         const constraints = {
             video: {
-                facingMode: currentFacingMode
+                facingMode: { ideal: currentFacingMode}
             },
             audio: false
         };
