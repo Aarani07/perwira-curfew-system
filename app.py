@@ -3403,7 +3403,7 @@ def create_app():
             # =========================
             # Determine lateness
             # =========================
-            now = datetime.now()
+            now = datetime.malaysia_now()
             detected_time = now.strftime("%Y-%m-%d %H:%M:%S")
 
             if now.hour < 6:
@@ -4133,7 +4133,7 @@ def create_app():
             # =========================================
             # DETERMINE LATENESS
             # =========================================
-            now = datetime.now()
+            now = datetime.malaysia_now()
 
             if now.hour < 6:
                 curfew_base_date = now - timedelta(days=1)
