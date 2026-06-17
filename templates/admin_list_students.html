@@ -103,11 +103,30 @@ List of Students | PRCDS
 
     </div>
 
+    <div class="right-controls">
+        <form action="{{ url_for('import_students') }}"
+              method="POST"
+              enctype="multipart/form-data"
+              class="import-form">
+
+            <label for="excel_file" class="import-btn">
+                <i class="fas fa-file-import"></i>
+                Bulk Student Registration
+            </label>
+
+            <input type="file"
+                   id="excel_file"
+                   name="excel_file"
+                   accept=".xlsx,.xls"
+                   onchange="this.form.submit()">
+        </form>
+
     <a href="{{ url_for('export_students') }}"
        class="export-btn fancy-export-btn">
         <i class="fas fa-file-export"></i>
         Export List
     </a>
+</div>
 
 </div>
 

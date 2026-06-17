@@ -1904,3 +1904,52 @@
 
     text-transform:uppercase;
 }
+
+/* RIGHT SIDE BUTTONS */
+
+.right-controls{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+/* HIDE FILE INPUT */
+
+.import-form input[type="file"]{
+    display:none;
+}
+
+/* IMPORT BUTTON */
+
+.import-btn{
+    background:linear-gradient(135deg,#10b981,#059669);
+
+    color:white;
+
+    border:none;
+
+    padding:12px 22px;
+
+    border-radius:12px;
+
+    font-size:14px;
+    font-weight:600;
+
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    cursor:pointer;
+
+    transition:all .25s ease;
+
+    box-shadow:0 10px 24px rgba(16,185,129,.18);
+}
+
+.import-btn:hover{
+    transform:translateY(-2px);
+}
+
+.import-btn i{
+    font-size:14px;
+}
