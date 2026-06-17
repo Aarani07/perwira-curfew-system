@@ -1660,7 +1660,7 @@ def create_app():
 
         flash('Students imported successfully')
 
-        return redirect(url_for('students'))
+        return redirect(url_for("admin_list_students"))
 
     @app.route("/admin/students/add", methods=["POST"])
     @login_required(role="admin")
