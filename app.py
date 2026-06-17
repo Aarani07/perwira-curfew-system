@@ -2867,9 +2867,14 @@ def create_app():
                 kklk_logo=kklk_logo
             )
 
-            config = pdfkit.configuration(
-                wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
-            )
+            if os.name == "nt":
+                config = pdfkit.configuration(
+                    wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+                )
+            else:
+                config = pdfkit.configuration(
+                    wkhtmltopdf="/usr/bin/wkhtmltopdf"
+                )
 
             pdf = pdfkit.from_string(
                 html,
