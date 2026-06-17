@@ -2852,29 +2852,54 @@ def create_app():
 
             students = cur.fetchall()
 
-            uthm_logo = os.path.abspath(
-                "static/images/uthm_logo.png"
+            high_risk = 0
+            medium_risk = 0
+            low_risk = 0
+            total_violations = 0
+
+            for s in students:
+
+                total_violations += s["total_violations"]
+
+                if s["warning_letter_count"] >= 2:
+                    high_risk += 1
+
+                elif s["total_violations"] >= 3:
+                    medium_risk += 1
+
+                else:
+                    low_risk += 1
+
+            uthm_logo = url_for(
+                "static",
+                filename="images/uthm_logo.png"
             )
 
-            kklk_logo = os.path.abspath(
-                "static/images/kklk_logo.png"
+            kklk_logo = url_for(
+                "static",
+                filename="images/kklk_logo.png"
             )
+
+            current_date = datetime.now().strftime("%d/%m/%Y")
 
             html = render_template(
                 "violators_report_pdf.html",
                 students=students,
                 uthm_logo=uthm_logo,
-                kklk_logo=kklk_logo
+                kklk_logo=kklk_logo,
+                current_date=current_date,
+                high_risk=high_risk,
+                medium_risk=medium_risk,
+                low_risk=low_risk,
+                total_violations=total_violations
             )
 
-            return html
+            response = make_response(html)
 
-            response = make_response(pdf)
-
-            response.headers["Content-Type"] = "application/pdf"
+            response.headers["Content-Type"] = "text/html"
 
             response.headers["Content-Disposition"] = (
-                "attachment; filename=violators_report.pdf"
+                "attachment; filename=violators_report.html"
             )
 
             return response
