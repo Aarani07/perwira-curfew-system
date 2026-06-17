@@ -21,6 +21,7 @@ import pdfkit
 import stripe
 import requests
 import resend
+import pandas as pd
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from functools import wraps
@@ -36,6 +37,7 @@ load_dotenv(dotenv_path=".env", override=True)
 from email.message import EmailMessage
 from db import get_db, init_db
 from io import StringIO
+from io import BytesIO
 from flask import Response
 from PIL import Image
 from flask import request
@@ -2852,57 +2854,47 @@ def create_app():
 
             students = cur.fetchall()
 
-            high_risk = 0
-            medium_risk = 0
-            low_risk = 0
-            total_violations = 0
+            excel_data = []
 
             for s in students:
 
-                total_violations += s["total_violations"]
-
                 if s["warning_letter_count"] >= 2:
-                    high_risk += 1
-
+                    risk_level = "High Risk"
                 elif s["total_violations"] >= 3:
-                    medium_risk += 1
-
+                    risk_level = "Medium Risk"
                 else:
-                    low_risk += 1
+                    risk_level = "Low Risk"
 
-            uthm_logo = url_for(
-                "static",
-                filename="images/uthm_logo.png"
+                excel_data.append({
+                    "Student Name": s["student_name"],
+                    "Matric No": s["matric_no"],
+                    "Block": s["block"],
+                    "Total Violations": s["total_violations"],
+                    "Excused": s["excused_count"],
+                    "Warning Letters": s["warning_letter_count"],
+                    "Last Violation": s["last_violation"],
+                    "Risk Level": risk_level
+                })
+
+            df = pd.DataFrame(excel_data)
+
+            output = BytesIO()
+
+            with pd.ExcelWriter(output, engine="openpyxl") as writer:
+                df.to_excel(
+                    writer,
+                    sheet_name="Violators Report",
+                    index=False
+                )
+
+            output.seek(0)
+
+            return send_file(
+                output,
+                as_attachment=True,
+                download_name="violators_report.xlsx",
+                mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
-            kklk_logo = url_for(
-                "static",
-                filename="images/kklk_logo.png"
-            )
-
-            current_date = datetime.now().strftime("%d/%m/%Y")
-
-            html = render_template(
-                "violators_report_pdf.html",
-                students=students,
-                uthm_logo=uthm_logo,
-                kklk_logo=kklk_logo,
-                current_date=current_date,
-                high_risk=high_risk,
-                medium_risk=medium_risk,
-                low_risk=low_risk,
-                total_violations=total_violations
-            )
-
-            response = make_response(html)
-
-            response.headers["Content-Type"] = "text/html"
-
-            response.headers["Content-Disposition"] = (
-                "attachment; filename=violators_report.html"
-            )
-
-            return response
 
         finally:
             cur.close()

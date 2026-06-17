@@ -16,6 +16,8 @@ Jinja2==3.1.6
 MarkupSafe==3.0.3
 numpy==1.26.4
 opencv-python==4.10.0.84
+openpyxl==3.1.5
+pandas==2.3.0
 packaging==26.2
 pdfkit==1.0.0
 pillow==12.1.1
