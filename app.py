@@ -1579,6 +1579,89 @@ def create_app():
             admin_count=admin_count
         )
 
+    @app.route('/import_students', methods=['POST'])
+    def import_students():
+
+        file = request.files['excel_file']
+
+        if not file:
+            flash('No file selected')
+            return redirect(url_for('students'))
+
+        df = pd.read_excel(file)
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        for _, row in df.iterrows():
+
+            # Check duplicate email
+            cur.execute(
+                "SELECT user_id FROM users WHERE email=%s",
+                (row["student_email"],)
+            )
+
+            if cur.fetchone():
+                continue
+
+            # 1. Create user account
+            cur.execute("""
+                INSERT INTO users
+                (
+                    email,
+                    password,
+                    name,
+                    role,
+                    force_password_change
+                )
+                VALUES (%s,%s,%s,'student',1)
+            """, (
+                row["student_email"],
+                generate_password_hash("student123"),
+                row["student_name"]
+            ))
+
+            user_id = cur.lastrowid
+
+            # 2. Create student profile
+            cur.execute("""
+                INSERT INTO students
+                (
+                    user_id,
+                    student_name,
+                    student_ic_no,
+                    matric_no,
+                    student_email,
+                    student_phone,
+                    block,
+                    room_no,
+                    faculty,
+                    course,
+                    profile_completed
+                )
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (
+                user_id,
+                row["student_name"],
+                row["student_ic_no"],
+                row["matric_no"],
+                row["student_email"],
+                row["student_phone"],
+                row["block"],
+                row["room_no"],
+                row["faculty"],
+                row["course"],
+                0
+            ))
+
+        conn.commit()
+
+        cur.close()
+
+        flash('Students imported successfully')
+
+        return redirect(url_for('students'))
+
     @app.route("/admin/students/add", methods=["POST"])
     @login_required(role="admin")
     def admin_add_students():

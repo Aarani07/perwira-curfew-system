@@ -54,6 +54,20 @@ List of Students | PRCDS
     </button>
 </div>
 
+<form action="{{ url_for('import_students') }}"
+      method="POST"
+      enctype="multipart/form-data">
+
+    <input type="file"
+           name="excel_file"
+           accept=".xlsx,.xls">
+
+    <button type="submit">
+        Import Students
+    </button>
+
+</form>
+
 <div class="control-bar">
 
     <div class="left-controls">
