@@ -115,13 +115,16 @@ def send_otp_email(to_email, otp):
 
     resend.Emails.send({
         "from": "onboarding@resend.dev",
-        "to": [to_email],
+        "to": ["kklkcurfewsystem25@gmail.com"],  # Always send to your Gmail
         "subject": "Password Reset OTP",
         "html": f"""
         <h2>Password Reset Request</h2>
-        <p>Your OTP code is:</p>
+
+        <p><strong>Requested Email:</strong> {to_email}</p>
+
+        <p>Your OTP is:</p>
+
         <h1>{otp}</h1>
-        <p>This OTP will expire shortly.</p>
         """
     })
 
