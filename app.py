@@ -20,6 +20,7 @@ import qrcode
 import pdfkit
 import stripe
 import requests
+import resend
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from functools import wraps
@@ -111,31 +112,18 @@ def validate_password(password):
     )
 
 def send_otp_email(to_email, otp):
-    try:
-        host = "smtp.gmail.com"
-        port = 587
-        user = os.getenv("EMAIL_USER")
-        password = os.getenv("EMAIL_PASSWORD")
 
-        print("SMTP USING:", host, port, user)
-
-        msg = EmailMessage()
-        msg["Subject"] = "Password Reset OTP"
-        msg["From"] = user
-        msg["To"] = to_email
-        msg.set_content(f"Your OTP is: {otp}")
-
-        with smtplib.SMTP(host, port, timeout=10) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(user, password)
-            server.send_message(msg)
-
-        print("EMAIL SENT SUCCESSFULLY")
-
-    except Exception as e:
-        print("EMAIL ERROR:", str(e))
-        raise
+    resend.Emails.send({
+        "from": "onboarding@resend.dev",
+        "to": [to_email],
+        "subject": "Password Reset OTP",
+        "html": f"""
+        <h2>Password Reset Request</h2>
+        <p>Your OTP code is:</p>
+        <h1>{otp}</h1>
+        <p>This OTP will expire shortly.</p>
+        """
+    })
 
 def send_warning_letter_email(
     to_email,
