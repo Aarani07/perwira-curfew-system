@@ -111,8 +111,31 @@ def validate_password(password):
     )
 
 def send_otp_email(to_email, otp):
-    print("OTP:", otp)
-    print("EMAIL:", to_email)
+    try:
+        host = "smtp.gmail.com"
+        port = 587
+        user = os.getenv("EMAIL_USER")
+        password = os.getenv("EMAIL_PASSWORD")
+
+        print("SMTP USING:", host, port, user)
+
+        msg = EmailMessage()
+        msg["Subject"] = "Password Reset OTP"
+        msg["From"] = user
+        msg["To"] = to_email
+        msg.set_content(f"Your OTP is: {otp}")
+
+        with smtplib.SMTP(host, port, timeout=10) as server:
+            server.ehlo()
+            server.starttls()
+            server.login(user, password)
+            server.send_message(msg)
+
+        print("EMAIL SENT SUCCESSFULLY")
+
+    except Exception as e:
+        print("EMAIL ERROR:", str(e))
+        raise
 
 def send_warning_letter_email(
     to_email,
