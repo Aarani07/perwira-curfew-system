@@ -4602,7 +4602,7 @@ def create_app():
                 SELECT fine_id
                 FROM fines
                 WHERE user_id = %s
-                AND payment_status = 'Unpaid'
+                AND payment_status = 'Payment Pending'
                 LIMIT 1
             """, (user_id,))
 

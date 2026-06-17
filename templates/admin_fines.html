@@ -166,7 +166,7 @@ Penalty Payment Management
 
                         <td>
 
-                            {% if fine.payment_status == "Payment Pending" %}
+                            {% if fine.payment_status in ["Unpaid", "Payment Pending"] %}
 
                             <form action="{{ url_for('send_overdue_notification', fine_id=fine.fine_id) }}"
                                 method="POST">
