@@ -115,16 +115,55 @@ def send_otp_email(to_email, otp):
 
     resend.Emails.send({
         "from": "onboarding@resend.dev",
-        "to": ["kklkcurfewsystem25@gmail.com"],  # Always send to your Gmail
-        "subject": "Password Reset OTP",
+        "to": ["kklkcurfewsystem25@gmail.com"],
+        "subject": "Password Reset Verification Code",
         "html": f"""
-        <h2>Password Reset Request</h2>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; color: #333;">
+            
+            <h2 style="color: #0d6efd;">
+                Perwira Residential Curfew Detection System
+            </h2>
 
-        <p><strong>Requested Email:</strong> {to_email}</p>
+            <p>Dear User,</p>
 
-        <p>Your OTP is:</p>
+            <p>
+                We have received a request to reset the password associated with your account.
+                To proceed with the password reset process, please use the One-Time Password (OTP) provided below:
+            </p>
 
-        <h1>{otp}</h1>
+            <div style="
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+                margin: 25px 0;
+            ">
+                <h1 style="
+                    margin: 0;
+                    color: #0d6efd;
+                    letter-spacing: 5px;
+                ">
+                    {otp}
+                </h1>
+            </div>
+
+            <p>
+                This OTP is required to verify your identity and complete the password reset process.
+            </p>
+
+            <p>
+                If you did not request a password reset, please ignore this email. No changes will be made to your account.
+            </p>
+
+            <hr>
+
+            <p style="font-size: 12px; color: #6c757d;">
+                This is an automated message from the Perwira Residential Curfew Detection System.
+                Please do not reply to this email.
+            </p>
+
+        </div>
         """
     })
 
