@@ -137,7 +137,6 @@ List of Security Officers | PRCDS
                 data-staff="{{ officer.staff_id }}"
                 data-email="{{ officer.officer_email }}"
                 data-phone="{{ officer.officer_phone }}"
-                data-status="{{ officer.status }}"
                 data-pic="{{ url_for('static', filename='images/profiles/' ~ (officer.officer_official_pic if officer.officer_official_pic else 'default.png')) }}">
 
                 <i class="fa-solid fa-eye"></i>
