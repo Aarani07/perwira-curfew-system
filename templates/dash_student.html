@@ -359,9 +359,10 @@ Student Dashboard | PRCDS
             payment status and take the necessary action as soon as possible.
         </p>
 
-        <button onclick="closeUrgentPopup()">
-            Acknowledge
-        </button>
+        <a href="{{ url_for('student_penalty_payment') }}"
+            class="urgent-btn">
+                Acknowledge
+        </a>
 
     </div>
 </div>
