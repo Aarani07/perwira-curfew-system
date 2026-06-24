@@ -573,7 +573,7 @@ def create_app():
 
                 WHERE v.status = 'Unexcused'
 
-                DATEDIFF(CURDATE(), v.violation_date) >= 7
+                AND DATEDIFF(NOW(), v.violation_date) >= 7
 
                 AND v.violation_id NOT IN (
 
